@@ -22,7 +22,7 @@ def create_schedule(tasks: List[Task], worker_num: int):
     for current_time in range(10):
         increase_time = True
         available_tasks: Set[Task] = {task for task in tasks if task.ready <= current_time}
-        if any([task.min_resources <= available_workers]):
+        if any([task.min_resources <= available_workers for task in available_tasks]):
             task: Task = max(available_tasks, key=lambda t: t.base_length)
             proposed_workers = min(task.max_resources, available_workers)
             task.real_length = task.calc_length(proposed_workers)
