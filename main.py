@@ -1,7 +1,10 @@
-from task import Task
+from generator import Generator
 
 if __name__ == '__main__':
     print("Start")
-    t = Task(1, 0, 10, 20, 20, lambda z, n: z.base_length / n)
+    generator = Generator(10000, 1, 1000, 5000, 6000, 0.1,
+                          lambda z, n: z.base_length / n, std_function=lambda x: x*0.05, save_plots=True)
+    tasks = generator.generate()
+    t = tasks[0]
     print(t)
     print(t.calc_length(3))
