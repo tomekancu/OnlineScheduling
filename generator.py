@@ -1,6 +1,5 @@
+from typing import Callable, Tuple
 import random
-from typing import Callable
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,44 +8,56 @@ from task import Task
 
 class Generator:
 
-    def __init__(self, N: int, low1: int, high1: int, low2: int, high2: int,
-                 p: float, length_function: Callable[['Task', int], int], std_function=np.sqrt, save_plots=False):
-        self.n = N
-        self.low1 = low1
-        self.high1 = high1
-        self.low2 = low2
-        self.high2 = high2
-        self.p = p
+    def __init__(self, n: int,
+                 min_max_resources: Tuple[int, int],
+                 # bimodal distribution of base length of task
+                 min_max_small: Tuple[int, int], min_max_big: Tuple[int, int], p_of_big: float,
+                 length_function: Callable[['Task', int], float],
+                 std_function=np.sqrt, save_plots=False):
+        self.n = n
+        self.min_max_resources = min_max_resources
+        self.min_max_small = min_max_small
+        self.min_max_big = min_max_big
+        self.p_of_big = p_of_big
         self.std_function = std_function
         self.length_function = length_function
         self.save_plots = save_plots
 
-    def _bimodal(self):
-        toss = np.random.choice((1, 2), p=(1-self.p, self.p))
-        if toss == 1:
-            return random.triangular(self.low1, self.high1)
-        else:
-            return random.triangular(self.low2, self.high2)
-
     def generate(self):
-        nums = [int(self._bimodal()) for _ in range(self.n)]
-        mean = np.mean(nums)
+        base_lengths = [int(self._bimodal()) for _ in range(self.n)]
+        mean = np.mean(base_lengths)
 
-        time = [int(np.round(np.random.normal(mean, self.std_function(mean)))) for _ in range(self.n)]
+        time_spaces = np.random.normal(mean, self.std_function(mean), self.n)
+        time = []
+        clock = 0
+        for space in time_spaces:
+            time.append(clock)
+            clock += space
 
         if self.save_plots:
-            plt.subplot(2, 1, 1)
-            plt.hist(nums, bins=max(10, self.n//10))
-            plt.title("Task duration distribution")
+            self._save_plot(base_lengths, time_spaces)
 
-            plt.subplot(2, 1, 2)
-            plt.hist(time, bins=min(25, max(10, self.n//25)))
-            plt.title("Task submitting distribution")
-            plt.tight_layout()
-            plt.savefig("img.png")
+        (min_resources, max_resources) = self.min_max_resources
+        return [Task(i, time[i], min_resources, max_resources,
+                     base_lengths[i], self.length_function) for i in range(self.n)]
 
-        return [Task(i, time[i], 0, 10, nums[i], self.length_function) for i in range(self.n)]
+    def _bimodal(self):
+        toss = np.random.choice((1, 2), p=(1 - self.p_of_big, self.p_of_big))
+        if toss == 1:
+            (low1, high1) = self.min_max_small
+            return random.triangular(low1, high1)
+        else:
+            (low2, high2) = self.min_max_big
+            return random.triangular(low2, high2)
 
+    def _save_plot(self, base_lengths, time_spaces):
+        plt.subplot(2, 1, 1)
+        plt.hist(base_lengths, bins=max(10, self.n // 10))
+        plt.title("Task duration distribution")
 
+        plt.subplot(2, 1, 2)
+        plt.hist(time_spaces, bins=min(25, max(10, self.n // 25)))
+        plt.title("Task submitting distribution")
 
-
+        plt.tight_layout()
+        plt.savefig("img.png")
