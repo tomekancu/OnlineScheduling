@@ -13,7 +13,7 @@ class Generator:
                  # bimodal distribution of base length of task
                  min_max_small: Tuple[int, int], min_max_big: Tuple[int, int], p_of_big: float,
                  length_function: Callable[['Task', int], float],
-                 std_function=np.sqrt, save_plots=False):
+                 std_function=np.sqrt, print_plots=False):
         self.n = n
         self.min_max_resources = min_max_resources
         self.min_max_small = min_max_small
@@ -21,7 +21,7 @@ class Generator:
         self.p_of_big = p_of_big
         self.std_function = std_function
         self.length_function = length_function
-        self.save_plots = save_plots
+        self.print_plots = print_plots
 
     def generate(self):
         base_lengths = [int(self._bimodal()) for _ in range(self.n)]
@@ -34,23 +34,23 @@ class Generator:
             time.append(clock)
             clock += space
 
-        if self.save_plots:
-            self._save_plot(base_lengths, time_spaces)
+        if self.print_plots:
+            self._print_plot(base_lengths, time_spaces)
 
-        (min_resources, max_resources) = self.min_max_resources
+        min_resources, max_resources = self.min_max_resources
         return [Task(i, time[i], min_resources, max_resources,
                      base_lengths[i], self.length_function) for i in range(self.n)]
 
     def _bimodal(self):
         toss = np.random.choice((1, 2), p=(1 - self.p_of_big, self.p_of_big))
         if toss == 1:
-            (low1, high1) = self.min_max_small
+            low1, high1 = self.min_max_small
             return random.triangular(low1, high1)
         else:
-            (low2, high2) = self.min_max_big
+            low2, high2 = self.min_max_big
             return random.triangular(low2, high2)
 
-    def _save_plot(self, base_lengths, time_spaces):
+    def _print_plot(self, base_lengths, time_spaces):
         plt.subplot(2, 1, 1)
         plt.hist(base_lengths, bins=max(10, self.n // 10))
         plt.title("Task duration distribution")
@@ -60,4 +60,4 @@ class Generator:
         plt.title("Task submitting distribution")
 
         plt.tight_layout()
-        plt.savefig("img.png")
+        plt.savefig("output/distribution.png")
