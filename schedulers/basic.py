@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import matplotlib.pyplot as plt
 
 from schedulers.models import Procesor
@@ -19,27 +19,36 @@ class AbstractScheduler:
         self.reset(n_of_procesors)
         tasks = sorted(tasks, key=lambda x: x.ready)
         for task in tasks:
-            next_free_events = self.free_events(task.ready)
-            for event in next_free_events:
-                self.clock = event
-                self.on_proc_free_event(event)
+            next_free_event = self.next_free_event(task.ready)
+            while next_free_event is not None:
+                self.clock = next_free_event
+                self.on_proc_free_event(next_free_event)
+                next_free_event = self.next_free_event(task.ready)
 
             self.clock = task.ready
             self.on_new_task_event(self.clock, task)
 
-        next_free_events = self.free_events()
-        while len(next_free_events) > 0:
-            event = next_free_events[0]
-            self.clock = event
-            self.on_proc_free_event(event)
-            next_free_events = self.free_events()
+        next_free_event = self.next_free_event()
+        while next_free_event is not None:
+            self.clock = next_free_event
+            self.on_proc_free_event(next_free_event)
+            next_free_event = self.next_free_event()
 
-    def free_events(self, max_time: float = None) -> List[float]:
-        events = sorted(list(set(x.get_next_free_time() for x in self.procesors)))
+    def free_events(self, max_time: Optional[float] = None) -> List[float]:
+        events = set(x.get_next_free_time() for x in self.procesors)
         events = [event for event in events if self.clock < event]
         if max_time is not None:
             events = [event for event in events if event <= max_time]
-        return events
+        return sorted(events)
+
+    def next_free_event(self, max_time: Optional[float] = None) -> Optional[float]:
+        events = set(x.get_next_free_time() for x in self.procesors)
+        events = [event for event in events if self.clock < event]
+        if max_time is not None:
+            events = [event for event in events if event <= max_time]
+        if len(events) == 0:
+            return None
+        return min(events)
 
     def on_new_task_event(self, clock: float, new_task: Task):
         pass

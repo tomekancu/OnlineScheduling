@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from task import Task
 
@@ -17,7 +17,7 @@ class ExecutingTask:
 
 class Procesor:
 
-    def __init__(self, i: int, tasks: List[ExecutingTask] = None):
+    def __init__(self, i: int, tasks: Optional[List[ExecutingTask]] = None):
         self.id = i
         if tasks is None:
             tasks = []
