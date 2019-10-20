@@ -29,9 +29,9 @@ class AbstractScheduler:
 
         next_free_events = self.free_events()
         while len(next_free_events) > 0:
-            for event in next_free_events:
-                self.clock = event
-                self.on_proc_free_event(event)
+            event = next_free_events[0]
+            self.clock = event
+            self.on_proc_free_event(event)
             next_free_events = self.free_events()
 
     def free_events(self, max_time: float = None) -> List[float]:
