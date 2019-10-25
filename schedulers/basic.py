@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import List, DefaultDict, Set, Optional
+from collections import defaultdict
 import matplotlib.pyplot as plt
 
 from schedulers.models import Procesor
@@ -57,13 +58,14 @@ class AbstractScheduler:
         pass
 
 
-def print_scheduling(scheduling: List[Procesor]):
+def print_scheduling(instance: List[Task], scheduling: List[Procesor]):
     colors = ['orange', 'blue', 'red', 'yellow', 'green', 'purple', 'pink', 'gray']
     fig, gnt = plt.subplots()
     gnt.grid(True)
+
+    gnt.set_xlabel('Time')
     gnt.set_ylabel('Processor')
     gnt.set_ylim(0, 10 * len(scheduling))
-
     gnt.set_yticks([5 + 10 * i for i in range(len(scheduling))])
     gnt.set_yticklabels([proc.id for proc in reversed(scheduling)])
 
@@ -72,5 +74,19 @@ def print_scheduling(scheduling: List[Procesor]):
             t_id = task.task.id
             color = colors[t_id % len(colors)]
             gnt.broken_barh([(task.start, task.end - task.start)], (0.5 + 10 * i, 9), facecolors=color, label=str(t_id))
+            gnt.annotate(str(t_id), xy=(task.start, 9.5 + 10 * i), xycoords='data',
+                         horizontalalignment='left', verticalalignment='top')
+
+    starts: DefaultDict[float, Set[int]] = defaultdict(set)
+    for task in instance:
+        starts[task.ready].add(task.id)
+    ticks_ready_time = sorted(starts.keys())
+    labels_ready_time = [str(starts[x]) for x in ticks_ready_time]
+
+    ax2 = gnt.twiny()
+    ax2.set_xlabel('Tasks with ready time')
+    ax2.set_xlim(gnt.get_xlim())
+    ax2.set_xticks(ticks_ready_time)
+    ax2.set_xticklabels(labels_ready_time)
 
     plt.savefig("output/gantt.png")
