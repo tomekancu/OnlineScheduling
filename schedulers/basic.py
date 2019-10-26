@@ -8,9 +8,14 @@ from task import Task
 
 class AbstractScheduler:
 
-    def __init__(self):
+    def __init__(self, load: float = 0):
         self.procesors: List[Procesor] = []
         self.clock: float = 0
+        self.load = load
+
+    def calc_length(self, task: Task, given_procesors: int):
+        scale_length = 1 / (1 - self.load)
+        return scale_length * task.calc_length(given_procesors)
 
     def reset(self, n_of_procesors):
         self.procesors = [Procesor(i) for i in range(n_of_procesors)]
