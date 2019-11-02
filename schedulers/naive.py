@@ -1,8 +1,7 @@
 from typing import List
 
-from schedulers.basic import AbstractScheduler
-from schedulers.models import ExecutingTask
-from task import Task
+from schedulers.abstract import AbstractScheduler
+from models import ExecutingTask, Task
 
 
 class NaiveScheduler(AbstractScheduler):

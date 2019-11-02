@@ -1,9 +1,8 @@
 from typing import List
 import math
 
-from schedulers.basic import AbstractScheduler
-from schedulers.models import ExecutingTask, Procesor
-from task import Task
+from schedulers.abstract import AbstractScheduler
+from models import ExecutingTask, Procesor, Task
 
 
 class PreemptionScheduler(AbstractScheduler):

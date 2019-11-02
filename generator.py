@@ -3,7 +3,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-from task import Task
+from models import Task
 
 
 class Generator:

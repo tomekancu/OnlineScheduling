@@ -1,8 +1,7 @@
 from typing import List, DefaultDict
 from collections import defaultdict
 
-from schedulers.models import Procesor
-from task import Task
+from models import Procesor, Task
 
 
 class Metrics:

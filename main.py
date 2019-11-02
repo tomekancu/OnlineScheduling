@@ -1,8 +1,8 @@
-from task import Task
+from models import Task
 from generator import Generator
 from schedulers.naive import NaiveScheduler
 from schedulers.preemption import PreemptionScheduler
-from schedulers.basic import print_schedulings
+from plot import print_schedulings
 
 
 def cost_function(task: Task, n: int):
