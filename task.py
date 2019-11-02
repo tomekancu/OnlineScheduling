@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 import math
 
 
@@ -12,6 +12,7 @@ class Task:
         self.max_resources = max_resources
         self.base_length = base_lenght
         self.cost_function = length_function
+        self.parts: List[float] = []
 
     def __str__(self) -> str:
         return f"Task(id:{self.id}, ready:{self.ready}, base:{self.base_length}, min:{self.min_resources}, " \
@@ -23,3 +24,9 @@ class Task:
         if procs > self.max_resources:
             return self.cost_function(self, self.max_resources)
         return self.cost_function(self, procs)
+
+    def done_part(self) -> float:
+        return sum(self.parts)
+
+    def left_part(self) -> float:
+        return 1 - self.done_part()

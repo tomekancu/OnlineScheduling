@@ -1,7 +1,8 @@
 from task import Task
 from generator import Generator
 from schedulers.naive import NaiveScheduler
-from schedulers.basic import print_scheduling
+from schedulers.preemption import PreemptionScheduler
+from schedulers.basic import print_schedulings
 
 
 def cost_function(task: Task, n: int):
@@ -17,9 +18,13 @@ if __name__ == '__main__':
         Task(3, 10, 1, 3, 4, cost_function),
         Task(4, 11, 1, 3, 3, cost_function),
     ]
+    n_proc = 4
     scheduler = NaiveScheduler()
-    scheduler.schedule(3, instance)
-    print_scheduling(instance, scheduler.procesors)
+    scheduler.schedule(n_proc, instance)
+
+    scheduler2 = PreemptionScheduler()
+    scheduler2.schedule(n_proc, instance)
+    print_schedulings(instance, [scheduler, scheduler2], "gantt.png")
 
     # generator = Generator(10000, (1, 10),
     #                       (1, 1000), (5000, 6000), 0.1,

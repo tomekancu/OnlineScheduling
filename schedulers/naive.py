@@ -25,19 +25,21 @@ class NaiveScheduler(AbstractScheduler):
     def try_execute_queue(self, clock: float):
         while True:
             free_procesors = [p for p in self.procesors if p.is_free(clock)]
-            task_can_be_begin = [t for t in self.queue if t.max_resources <= len(free_procesors)]
+            task_can_be_begin = [t for t in self.queue
+                                 if min(t.max_resources, len(self.procesors)) <= len(free_procesors)
+                                 and t.min_resources <= len(free_procesors)]
             if len(task_can_be_begin) == 0:
                 break
 
             task = min(task_can_be_begin, key=lambda x: self.calc_length(x, len(free_procesors)))
-            self.queue.remove(task)
 
-            free_procesors = free_procesors[:task.max_resources]
+            assigned_resources = free_procesors[:task.max_resources]
 
-            assigned_resources = len(free_procesors)
-            length = self.calc_length(task, assigned_resources)
+            a_r = len(assigned_resources)
+            length = self.calc_length(task, a_r)
             end = clock + length
-            executing_task = ExecutingTask(task, clock, end, assigned_resources)
-
-            for p in free_procesors:
+            task.parts.append(1.0)
+            executing_task = ExecutingTask(task, clock, end, length)
+            for p in assigned_resources:
                 p.add_task(executing_task)
+            self.queue.remove(task)

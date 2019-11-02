@@ -5,14 +5,17 @@ from task import Task
 
 class ExecutingTask:
 
-    def __init__(self, task: Task, start: float, end: float, assigned_resources: int):
+    def __init__(self, task: Task, start: float, end: float, initial_length: float):
         self.task = task
         self.start = start
         self.end = end
-        self.assigned_resources = assigned_resources
+        self.initial_length = initial_length
 
     def __str__(self) -> str:
         return f"ExecutingTask(start:{self.start}, end:{self.end}, task:{self.task})"
+
+    def done_part(self) -> float:
+        return (self.end - self.start) / self.initial_length
 
 
 class Procesor:
@@ -40,3 +43,13 @@ class Procesor:
 
     def is_free(self, when: float) -> bool:
         return self.get_next_free_time() <= when
+
+    def get_last_task(self) -> Optional[ExecutingTask]:
+        if len(self.tasks) == 0:
+            return None
+        return self.tasks[-1]
+
+    def get_last_doing_task(self, when: float) -> Optional[ExecutingTask]:
+        if self.is_free(when):
+            return None
+        return self.get_last_task()
