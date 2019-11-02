@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import copy
 
 from schedulers.models import Procesor
+from metrics import Metrics, get_metrics
 from task import Task
 
 
@@ -65,6 +66,9 @@ class AbstractScheduler:
     def on_proc_free_event(self, clock: float):
         pass
 
+    def calc_metrics(self) -> Metrics:
+        return get_metrics(self.procesors)
+
     def get_title(self) -> str:
         name = self.__class__.__name__
         return f"{name} load:{self.load}"
@@ -72,9 +76,10 @@ class AbstractScheduler:
 
 def print_schedulings(instance: List[Task], schedulings: List[AbstractScheduler], file="gantt.png"):
     fig, axs = plt.subplots(nrows=len(schedulings), sharex='all', squeeze=False)
-    fig.subplots_adjust(top=0.85, hspace=0.7)
+    fig.subplots_adjust(top=0.85-0.05, hspace=0.7+0.25)
     for i in range(len(schedulings)):
-        title = schedulings[i].get_title()
+        m = schedulings[i].calc_metrics()
+        title = schedulings[i].get_title() + "\n" + str(m)
         scheduling = schedulings[i].procesors
         ax = axs[i, 0]
         plot_scheduling(ax, instance, scheduling, title)
