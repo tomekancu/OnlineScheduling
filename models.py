@@ -4,7 +4,7 @@ from typing import List, Optional, Callable
 
 class Task:
 
-    def __init__(self, i: int, ready: float, min_resources: int, max_resources: int, base_lenght: int,
+    def __init__(self, i: int, ready: float, min_resources: int, max_resources: int, base_lenght: float,
                  length_function: Callable[['Task', int], float]):
         self.id = i
         self.ready = ready

@@ -5,27 +5,32 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
 from schedulers.abstract import AbstractScheduler
+from metrics import get_max_end
 from models import Task, Procesor
 
 
 def print_schedulings(instance: List[Task], schedulings: List[AbstractScheduler], file="gantt.png"):
-    fig, axs = plt.subplots(nrows=len(schedulings), sharex='all', squeeze=False)
-    fig.subplots_adjust(top=0.85-0.05, hspace=0.7+0.25)
+    height = 3.8 * len(schedulings)
+    fig, axs = plt.subplots(nrows=len(schedulings), sharex='all', squeeze=False, figsize=(6.4, height))
+    fig.tight_layout(pad=2, h_pad=7, rect=(0, 0, 1, (height - 0.7) / height))
+    xmax = max(get_max_end(s.procesors) for s in schedulings) + 1
     for i in range(len(schedulings)):
         m = schedulings[i].calc_metrics()
         title = schedulings[i].get_title() + "\n" + str(m)
         scheduling = schedulings[i].procesors
         ax = axs[i, 0]
-        plot_scheduling(ax, instance, scheduling, title)
+        plot_scheduling(ax, instance, scheduling, xmax, title)
     fig.savefig(f"output/{file}")
 
 
-def plot_scheduling(ax: Axes, instance: List[Task], scheduling: List[Procesor], name: Optional[str] = None):
+def plot_scheduling(ax: Axes, instance: List[Task], scheduling: List[Procesor], xmax: float,
+                    name: Optional[str] = None):
     colors = ['orange', 'blue', 'red', 'yellow', 'green', 'purple', 'pink', 'gray']
     if name is not None:
         ax.set_title(name)
     ax.grid(True)
 
+    ax.set_xlim(-1, xmax)
     ax.set_xlabel('Time')
     ax.set_ylabel('Processor')
     ax.set_ylim(0, 10 * len(scheduling))

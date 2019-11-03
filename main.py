@@ -1,6 +1,7 @@
 from models import Task
 from generator import Generator
 from schedulers.naive import NaiveScheduler
+from schedulers.separate import SeparateScheduler
 from schedulers.preemption import PreemptionScheduler
 from plot import print_schedulings
 
@@ -22,9 +23,12 @@ if __name__ == '__main__':
     scheduler = NaiveScheduler()
     scheduler.schedule(n_proc, instance)
 
-    scheduler2 = PreemptionScheduler()
+    scheduler2 = SeparateScheduler(5, 0.25)
     scheduler2.schedule(n_proc, instance)
-    print_schedulings(instance, [scheduler, scheduler2], "gantt.png")
+
+    scheduler3 = PreemptionScheduler()
+    scheduler3.schedule(n_proc, instance)
+    print_schedulings(instance, [scheduler, scheduler2, scheduler3], "gantt.png")
 
     # generator = Generator(10000, (1, 10),
     #                       (1, 1000), (5000, 6000), 0.1,
