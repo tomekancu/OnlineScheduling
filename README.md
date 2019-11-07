@@ -30,3 +30,7 @@ Opracowano trzy algorytmy szeregujące zadania. Kolejne algorytmy zwiększają s
 
 #### Teza
 Algorytm szeregowy powinien minimalizować sumy czasów przetwarzania zadań od ich rozpoczęcia do zakończenia, lecz kosztem wydłużenia sumarycznego czasu przetwarzania wszystkich zadań. Algorym sprawiedliwy wydłuża sumy wykonywania czasów zadań, lecz minimalizuje sume czasu wykonania wszystkich zadań. Algorym szeregowy z podziałem na dwie kolejki powinien osiągać wyniki znajdujace sie pomiędzy dwoma poprzednimi algorytmami w obydwu minimalizowanych metrykach.
+
+#### Metryki
+1. Suma czasów kiedy procesor był zajęty (pole wielokątów na gancie)
+2. Czas odpowiedzi - idelany czas (czas w kolejce + czas wykoniania - idealny czas wykonania)
