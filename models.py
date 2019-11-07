@@ -43,8 +43,11 @@ class ExecutingTask:
     def __str__(self) -> str:
         return f"ExecutingTask(start:{self.start}, end:{self.end}, task:{self.task})"
 
+    def busy(self) -> float:
+        return self.end - self.start
+
     def done_part(self) -> float:
-        return (self.end - self.start) / self.initial_length
+        return self.busy() / self.initial_length
 
 
 class Procesor:
