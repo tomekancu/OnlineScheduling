@@ -34,3 +34,11 @@ Algorytm szeregowy powinien minimalizować sumy czasów przetwarzania zadań od 
 #### Metryki
 1. Suma czasów kiedy procesor był zajęty (pole wielokątów na gancie)
 2. Czas odpowiedzi - idelany czas (czas w kolejce + czas wykoniania - idealny czas wykonania)
+3. Czas odpowiedzi
+
+#### Metodologia badań TODO
+Generowanie rozkładu - zmienna odchyłka od średniej (prawdopodobienstwo wystąpienia duzych zadań oraz ich rozkładu od rozkładu krótkich zadań)
+Obiciążenie - zadane na starcie generatora, moze byc regulowane za pomocą odstępów pomiędzy zadaniami
+Liniowa funkcja kosztu wykonania zadania: koszt = bazowy koszt/liczba zasobów przydzielonych
+
+
