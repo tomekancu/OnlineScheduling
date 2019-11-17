@@ -1,11 +1,11 @@
 from collections import defaultdict
-from typing import List, Optional, DefaultDict, Set
+from typing import List, Optional, DefaultDict, Set, Dict, Callable
 
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
 from schedulers.abstract import AbstractScheduler
-from metrics import get_max_end
+from metrics import Metrics, get_max_end
 from models import Task, Procesor
 
 
@@ -56,3 +56,38 @@ def plot_scheduling(ax: Axes, instance: List[Task], scheduling: List[Procesor], 
     ax2.set_xlim(ax.get_xlim())
     ax2.set_xticks(ticks_ready_time)
     ax2.set_xticklabels(labels_ready_time)
+
+
+def _to_plot(xs_of_metrics: Dict[float, Dict[str, Metrics]], func: Callable[[Metrics], float]):
+    xs = list(sorted(xs_of_metrics.keys()))
+    plots = defaultdict(lambda: [])
+    for x in xs:
+        for name, metric in xs_of_metrics[x].items():
+            plots[name].append(func(metric))
+    return plots
+
+
+def print_metrics(xs_of_metrics: Dict[float, Dict[str, Metrics]], name, file="metrics.png"):
+    fig, axs = plt.subplots(nrows=2, ncols=3, squeeze=False, figsize=(12, 8))
+    fig.suptitle(name)
+    fig.tight_layout(pad=3, h_pad=3)
+
+    xs = list(sorted(xs_of_metrics.keys()))
+
+    i = 0
+    for name, func in {"mean response time": lambda x: x.mean_response_time,
+                       "mean processing time": lambda x: x.mean_processing_time,
+                       "mean ideal delay time": lambda x: x.mean_ideal_delay_time,
+                       "processing time to\n response time": lambda x: x.processing_time_to_response_time,
+                       "delay time to\n response time": lambda x: x.delay_time_to_response_time,
+                       "actual resource load": lambda x: x.actual_resource_load}.items():
+        plots = _to_plot(xs_of_metrics, func)
+        axs[i // 3, i % 3].set_title(name)
+        for name_ske, ys in plots.items():
+            axs[i // 3, i % 3].plot(xs, ys, label=name_ske)
+        i += 1
+
+    handles, labels = axs[0, 0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=3)
+
+    fig.savefig(f"output/{file}")

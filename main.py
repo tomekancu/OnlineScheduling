@@ -3,7 +3,8 @@ from generator import Generator
 from schedulers.naive import NaiveScheduler
 from schedulers.separate import SeparateScheduler
 from schedulers.preemption import PreemptionScheduler
-from plot import print_schedulings
+from plot import print_schedulings, print_metrics
+from metrics import get_metrics
 
 
 def cost_function(task: Task, n: int):
@@ -29,14 +30,23 @@ if __name__ == '__main__':
         Task(3, 10, 1, 3, 4, cost_function),
         Task(4, 11, 1, 3, 3, cost_function),
     ]
-    n_proc = 4
-    scheduler1 = NaiveScheduler()
-    scheduler1.schedule(n_proc, instance)
 
-    scheduler2 = SeparateScheduler(5, 0.25)
-    scheduler2.schedule(n_proc, instance)
+    metrics_all = {}
+    for n_proc in range(2, 5):
+        metrics = {}
+        scheduler1 = NaiveScheduler()
+        scheduler1.schedule(n_proc, instance)
+        metrics[scheduler1.get_name()] = get_metrics(scheduler1.procesors)
 
-    scheduler3 = PreemptionScheduler()
-    scheduler3.schedule(n_proc, instance)
+        scheduler2 = SeparateScheduler(5, 0.25)
+        scheduler2.schedule(n_proc, instance)
+        metrics[scheduler2.get_name()] = get_metrics(scheduler2.procesors)
 
-    print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")
+        scheduler3 = PreemptionScheduler()
+        scheduler3.schedule(n_proc, instance)
+        metrics[scheduler3.get_name()] = get_metrics(scheduler3.procesors)
+
+        metrics_all[n_proc] = metrics
+        print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")
+
+    print_metrics(metrics_all, "metrics", "metrics.png")
