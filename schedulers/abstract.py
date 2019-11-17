@@ -65,6 +65,8 @@ class AbstractScheduler:
     def calc_metrics(self) -> Metrics:
         return get_metrics(self.procesors)
 
+    def get_name(self) -> str:
+        return self.__class__.__name__
+
     def get_title(self) -> str:
-        name = self.__class__.__name__
-        return f"{name} load:{self.load}"
+        return f"{self.get_name()} load:{self.load}"

@@ -30,12 +30,13 @@ if __name__ == '__main__':
         Task(4, 11, 1, 3, 3, cost_function),
     ]
     n_proc = 4
-    scheduler = NaiveScheduler()
-    scheduler.schedule(n_proc, instance)
+    scheduler1 = NaiveScheduler()
+    scheduler1.schedule(n_proc, instance)
 
     scheduler2 = SeparateScheduler(5, 0.25)
     scheduler2.schedule(n_proc, instance)
 
     scheduler3 = PreemptionScheduler()
     scheduler3.schedule(n_proc, instance)
-    print_schedulings(instance, [scheduler, scheduler2, scheduler3], "gantt.png")
+
+    print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")

@@ -12,7 +12,7 @@ from models import Task, Procesor
 def print_schedulings(instance: List[Task], schedulings: List[AbstractScheduler], file="gantt.png"):
     height = 3.8 * len(schedulings)
     fig, axs = plt.subplots(nrows=len(schedulings), sharex='all', squeeze=False, figsize=(6.4, height))
-    fig.tight_layout(pad=2, h_pad=7, rect=(0, 0, 1, (height - 0.7) / height))
+    fig.tight_layout(pad=2.5, h_pad=8, rect=(0, 0, 1, (height - 0.7) / height))
     xmax = max(get_max_end(s.procesors) for s in schedulings) + 1
     for i in range(len(schedulings)):
         m = schedulings[i].calc_metrics()
