@@ -13,40 +13,42 @@ def cost_function(task: Task, n: int):
 
 if __name__ == '__main__':
     print("Start")
-    # generator = Generator(10000, (1, 10),
-    #                       (1, 1000), (5000, 6000), 0.1,
-    #                       (500, 50),
-    #                       lambda z, n: z.base_length / n, print_plots=True)
-    # tasks = generator.generate()
-    #
-    # for t in tasks[:10]:
-    #     print(t)
-    #     print(t.calc_length(3))
+    generator = Generator(task_number=10000, processors_number=20,
+                          parameter=0.3, load=1, print_plots=True)
+    instance = generator.generate()
 
-    instance = [
-        Task(0, 0, 1, 3, 10, cost_function),
-        Task(1, 2, 1, 2, 10, cost_function),
-        Task(2, 2, 1, 1, 10, cost_function),
-        Task(3, 10, 1, 3, 4, cost_function),
-        Task(4, 11, 1, 3, 3, cost_function),
-    ]
+    for t in instance[:10]:
+        print(t)
+
+    # instance = [
+    #     Task(0, 0, 1, 3, 10, cost_function),
+    #     Task(1, 2, 1, 2, 10, cost_function),
+    #     Task(2, 2, 1, 1, 10, cost_function),
+    #     Task(3, 10, 1, 3, 4, cost_function),
+    #     Task(4, 11, 1, 3, 3, cost_function),
+    # ]
 
     metrics_all = {}
-    for n_proc in range(2, 5):
+    for n_proc in range(19, 21):
+        print(n_proc)
         metrics = {}
+
+        print("first")
         scheduler1 = NaiveScheduler()
         scheduler1.schedule(n_proc, instance)
         metrics[scheduler1.get_name()] = get_metrics(scheduler1.procesors)
 
+        print("second")
         scheduler2 = SeparateScheduler(5, 0.25)
         scheduler2.schedule(n_proc, instance)
         metrics[scheduler2.get_name()] = get_metrics(scheduler2.procesors)
 
+        print("third")
         scheduler3 = PreemptionScheduler()
         scheduler3.schedule(n_proc, instance)
         metrics[scheduler3.get_name()] = get_metrics(scheduler3.procesors)
 
         metrics_all[n_proc] = metrics
-        print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")
+        # print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")
 
     print_metrics(metrics_all, "metrics", "metrics.png")
