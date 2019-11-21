@@ -68,18 +68,21 @@ def _to_plot(xs_of_metrics: Dict[float, Dict[str, Metrics]], func: Callable[[Met
 
 
 def print_metrics(xs_of_metrics: Dict[float, Dict[str, Metrics]], name, file="metrics.png"):
-    fig, axs = plt.subplots(nrows=2, ncols=3, squeeze=False, figsize=(12, 8))
+    fig, axs = plt.subplots(nrows=3, ncols=3, squeeze=False, figsize=(12, 12))
     fig.suptitle(name)
-    fig.tight_layout(pad=3, h_pad=3)
+    fig.tight_layout(pad=4, h_pad=3)
 
     xs = list(sorted(xs_of_metrics.keys()))
 
     i = 0
-    for name, func in {"mean response time": lambda x: x.mean_response_time,
+    for name, func in {"max end": lambda x: x.max_end,
+                       "mean response time": lambda x: x.mean_response_time,
                        "mean processing time": lambda x: x.mean_processing_time,
+                       "mean delay time": lambda x: x.mean_delay_time,
                        "mean ideal delay time": lambda x: x.mean_ideal_delay_time,
                        "processing time to\n response time": lambda x: x.processing_time_to_response_time,
                        "delay time to\n response time": lambda x: x.delay_time_to_response_time,
+                       "ideal delay time to\n response time": lambda x: x.ideal_delay_time_to_response_time,
                        "actual resource load": lambda x: x.actual_resource_load}.items():
         plots = _to_plot(xs_of_metrics, func)
         axs[i // 3, i % 3].set_title(name)

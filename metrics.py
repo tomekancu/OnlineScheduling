@@ -12,15 +12,19 @@ class Metrics:
         self.max_end = max_end
         self.mean_response_time = mean_response_time
         self.mean_processing_time = mean_processing_time
+        self.mean_delay_time = self.mean_response_time - self.mean_processing_time
         self.mean_ideal_delay_time = mean_ideal_delay_time
-        self.processing_time_to_response_time = mean_processing_time / mean_response_time
-        self.delay_time_to_response_time = mean_ideal_delay_time / mean_response_time
+        self.processing_time_to_response_time = self.mean_processing_time / self.mean_response_time
+        self.delay_time_to_response_time = self.mean_delay_time / self.mean_response_time
+        self.ideal_delay_time_to_response_time = self.mean_ideal_delay_time / self.mean_response_time
         self.actual_resource_load = actual_resource_load
 
     def __str__(self):
         return f"M(m={round(self.max_end, 2)}, m_r_t={round(self.mean_response_time, 2)}, " \
                f"m_p_t={round(self.mean_processing_time, 2)}, p_t_r_t={round(self.processing_time_to_response_time, 2)},\n" \
-               f"m_i_d_t={round(self.mean_ideal_delay_time, 2)}, i_t_r_t={round(self.delay_time_to_response_time, 2)}," \
+               f"m_d_t={round(self.mean_delay_time, 2)}, d_t_r_t={round(self.delay_time_to_response_time, 2)}, " \
+               f"m_i_d_t={round(self.mean_ideal_delay_time, 2)}, " \
+               f"i_t_r_t={round(self.ideal_delay_time_to_response_time, 2)}, " \
                f"a_r_l={round(self.actual_resource_load, 2)})"
 
 
