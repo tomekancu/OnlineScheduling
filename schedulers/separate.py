@@ -34,6 +34,9 @@ class SeparateScheduler(AbstractScheduler):
         self.scheduler_for_small.on_proc_free_event(clock)
         self.scheduler_for_big.on_proc_free_event(clock)
 
+    def get_name(self) -> str:
+        return super().get_name() + str(self.proc_of_small)
+
     def get_title(self) -> str:
         return super().get_title() + f" thres:{self.task_size_treshold} " \
                                      f"small:{self.proc_of_small}:{self.get_n_of_proc_small()}"

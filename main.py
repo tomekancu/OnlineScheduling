@@ -13,42 +13,43 @@ def cost_function(task: Task, n: int):
 
 if __name__ == '__main__':
     print("Start")
-    generator = Generator(task_number=10000, processors_number=20,
-                          parameter=0.3, load=1, print_plots=True)
-    instance = generator.generate()
-
-    for t in instance[:10]:
-        print(t)
-
-    # instance = [
-    #     Task(0, 0, 1, 3, 10, cost_function),
-    #     Task(1, 2, 1, 2, 10, cost_function),
-    #     Task(2, 2, 1, 1, 10, cost_function),
-    #     Task(3, 10, 1, 3, 4, cost_function),
-    #     Task(4, 11, 1, 3, 3, cost_function),
-    # ]
 
     metrics_all = {}
-    for n_proc in range(19, 21):
-        print(n_proc)
+    for max_load in [0.2, 0.4, 0.6, 0.8, 1.0]:
+        n_procesors = 100
+        generator = Generator(task_number=10000, processors_number=n_procesors,
+                              coefficient_of_variation=0.3, max_load=max_load, max_part_of_processors_number=1.0,
+                              print_plots=True)
+        instance = generator.generate()
+        print(max_load)
         metrics = {}
 
         print("first")
         scheduler1 = NaiveScheduler()
-        scheduler1.schedule(n_proc, instance)
+        scheduler1.schedule(n_procesors, instance)
         metrics[scheduler1.get_name()] = get_metrics(scheduler1.procesors)
 
-        print("second")
-        scheduler2 = SeparateScheduler(5, 0.25)
-        scheduler2.schedule(n_proc, instance)
+        print("second25")
+        scheduler2 = SeparateScheduler(generator.get_mid_task_size(), 0.25)
+        scheduler2.schedule(n_procesors, instance)
         metrics[scheduler2.get_name()] = get_metrics(scheduler2.procesors)
 
-        print("third")
-        scheduler3 = PreemptionScheduler()
-        scheduler3.schedule(n_proc, instance)
+        print("second50")
+        scheduler3 = SeparateScheduler(generator.get_mid_task_size(), 0.50)
+        scheduler3.schedule(n_procesors, instance)
         metrics[scheduler3.get_name()] = get_metrics(scheduler3.procesors)
 
-        metrics_all[n_proc] = metrics
+        print("second75")
+        scheduler4 = SeparateScheduler(generator.get_mid_task_size(), 0.75)
+        scheduler4.schedule(n_procesors, instance)
+        metrics[scheduler4.get_name()] = get_metrics(scheduler4.procesors)
+
+        print("third")
+        scheduler5 = PreemptionScheduler()
+        scheduler5.schedule(n_procesors, instance)
+        metrics[scheduler5.get_name()] = get_metrics(scheduler5.procesors)
+
+        metrics_all[max_load] = metrics
         # print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")
 
     print_metrics(metrics_all, "metrics", "metrics.png")
