@@ -76,7 +76,7 @@ class Generator:
         min_s, max_s = self._min_max_small
         step = max_s - min_s
 
-        while abs(self.coefficient_of_variation - coef) > self.coefficient_of_variation * 0.05:
+        while abs(self.coefficient_of_variation - coef) > self.coefficient_of_variation * 0.1:
             self._big_tasks = 0
             min_b, max_b = self._min_max_big
             self._min_max_big = (min_b + step * direction, max_b + step * direction)
