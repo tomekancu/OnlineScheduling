@@ -110,13 +110,13 @@ class Generator:
         return std_p / mean_p
 
     def _print_plot(self, base_lengths, time_spaces):
-        plt.subplot(2, 1, 1)
-        plt.hist(base_lengths, bins=max(10, self.n // 10))
-        plt.title("Task duration distribution")
+        fig, axs = plt.subplots(nrows=2)
+        fig.tight_layout()
 
-        plt.subplot(2, 1, 2)
-        plt.hist(time_spaces, bins=min(25, max(10, self.n // 25)))
-        plt.title("Task submitting distribution")
+        axs[0].hist(base_lengths, bins=max(10, self.n // 10))
+        axs[0].set_title("Task duration distribution")
 
-        plt.tight_layout()
-        plt.savefig("output/distribution.png")
+        axs[1].hist(time_spaces, bins=min(25, max(10, self.n // 25)))
+        axs[1].set_title("Task submitting distribution")
+
+        fig.savefig("output/distribution.png")

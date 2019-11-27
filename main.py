@@ -17,9 +17,9 @@ if __name__ == '__main__':
     metrics_all = {}
     for max_load in [0.2, 0.4, 0.6, 0.8, 1.0]:
         n_procesors = 100
-        generator = Generator(task_number=10000, processors_number=n_procesors,
+        generator = Generator(task_number=1000, processors_number=n_procesors,
                               coefficient_of_variation=0.3, max_load=max_load, max_part_of_processors_number=1.0,
-                              print_plots=True)
+                              print_plots=False)
         instance = generator.generate()
         print(max_load)
         metrics = {}
