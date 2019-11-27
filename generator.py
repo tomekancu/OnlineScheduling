@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Tuple, List
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,11 +8,11 @@ from models import Task
 
 class Generator:
     SETTINGS = {
-        0.3: {'p': 0.5},
-        1: {'p': 0.4},
-        2: {'p': 0.15},
-        5: {'p': 0.03},
-        10: {'p': 0.005}
+        0.3: (0.5, (1000, 1200), (1950, 2150)),
+        1: (0.35, (1000, 2000), (17000, 18000)),
+        2: (0.15, (1000, 2000), (57000, 58000)),
+        5: (0.03, (1000, 1500), (401500, 402000)),
+        10: (0.008, (1000, 2000), (2202000, 2203000))
     }
 
     def __init__(self, task_number: int,
@@ -26,9 +26,7 @@ class Generator:
         self.coefficient_of_variation = coefficient_of_variation
         self.load = max_load
         self._big_tasks = 0
-        self._min_max_small = (100, 350)
-        self._min_max_big = self._min_max_small
-        self._p_of_big = Generator.SETTINGS[self.coefficient_of_variation]['p']
+        self._p_of_big, self._min_max_small, self._min_max_big = Generator.SETTINGS[self.coefficient_of_variation]
         self.max_part_of_processors_number = max_part_of_processors_number
         self.print_plots = print_plots
         self.length_function = lambda z, n: z.base_length / n
@@ -72,7 +70,7 @@ class Generator:
         return (self._min_max_big[0] - self._min_max_small[1]) / 2
 
     def _generate_base_length(self):
-        base_lengths = [self._bimodal() for _ in range(self.n)]
+        base_lengths = self._bimodal()
         coef = self._coefficient_of_variation(base_lengths)
         direction = 1
         min_s, max_s = self._min_max_small
@@ -82,7 +80,7 @@ class Generator:
             self._big_tasks = 0
             min_b, max_b = self._min_max_big
             self._min_max_big = (min_b + step * direction, max_b + step * direction)
-            base_lengths = [self._bimodal() for _ in range(self.n)]
+            base_lengths = self._bimodal()
             coef = self._coefficient_of_variation(base_lengths)
             if coef > self.coefficient_of_variation:
                 direction = -1
@@ -94,14 +92,23 @@ class Generator:
         return base_lengths
 
     def _bimodal(self):
-        toss = np.random.choice((1, 2), p=(1 - self._p_of_big, self._p_of_big))
+        bimodal, self._big_tasks = Generator.bimodal_n(self.n, self._min_max_small, self._min_max_big, self._p_of_big)
+        return bimodal
+
+    @staticmethod
+    def bimodal_n(n, min_max_small, min_max_big, p_of_big) -> Tuple[List[float], int]:
+        bimodals, bigs = map(list, zip(*(Generator.bimodal1(min_max_small, min_max_big, p_of_big) for _ in range(n))))
+        return bimodals, sum(bigs)
+
+    @staticmethod
+    def bimodal1(min_max_small, min_max_big, p_of_big) -> Tuple[float, bool]:
+        toss = np.random.choice((1, 2), p=(1 - p_of_big, p_of_big))
         if toss == 1:
-            low1, high1 = self._min_max_small
-            return random.triangular(low1, high1)
+            low1, high1 = min_max_small
+            return random.triangular(low1, high1), False
         else:
-            self._big_tasks += 1
-            low2, high2 = self._min_max_big
-            return random.triangular(low2, high2)
+            low2, high2 = min_max_big
+            return random.triangular(low2, high2), True
 
     @staticmethod
     def _coefficient_of_variation(data: list):

@@ -74,21 +74,20 @@ def print_metrics(xs_of_metrics: Dict[float, Dict[str, Metrics]], name, file="me
 
     xs = list(sorted(xs_of_metrics.keys()))
 
-    i = 0
-    for name, func in {"max end": lambda x: x.max_end,
-                       "mean response time": lambda x: x.mean_response_time,
-                       "mean processing time": lambda x: x.mean_processing_time,
-                       "mean delay time": lambda x: x.mean_delay_time,
-                       "mean ideal delay time": lambda x: x.mean_ideal_delay_time,
-                       "processing time to\n response time": lambda x: x.processing_time_to_response_time,
-                       "delay time to\n response time": lambda x: x.delay_time_to_response_time,
-                       "ideal delay time to\n response time": lambda x: x.ideal_delay_time_to_response_time,
-                       "actual resource load": lambda x: x.actual_resource_load}.items():
+    for i, (name, func) in enumerate(
+            {"max end": lambda x: x.max_end,
+             "mean response time": lambda x: x.mean_response_time,
+             "mean processing time": lambda x: x.mean_processing_time,
+             "mean delay time": lambda x: x.mean_delay_time,
+             "mean ideal delay time": lambda x: x.mean_ideal_delay_time,
+             "processing time to\n response time": lambda x: x.processing_time_to_response_time,
+             "delay time to\n response time": lambda x: x.delay_time_to_response_time,
+             "ideal delay time to\n response time": lambda x: x.ideal_delay_time_to_response_time,
+             "actual resource load": lambda x: x.actual_resource_load}.items()):
         plots = _to_plot(xs_of_metrics, func)
         axs[i // 3, i % 3].set_title(name)
         for name_ske, ys in plots.items():
             axs[i // 3, i % 3].plot(xs, ys, label=name_ske)
-        i += 1
 
     handles, labels = axs[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc='lower center', ncol=3)
