@@ -1,0 +1,15 @@
+max-load/metrics-* -> mean response time, mean processing time
+    wywłaszczanie radzi sobie gorzej z czasem przetwarzania jeżeli obciązenie > 0.8
+    jednocześnie mając najmniejszy czas odpowiedzi za każdym razem
+algorytm wywłaszczeniowy zawsze maksymalizuje wykorzystanie procesorów
+algorytm bez wywłaszania zawsze minimalizuje średni czas przetwarzania
+algorytm bez wywłaszczeń im większy współczynnik zmienności tym mneijszy stosunke processin time / response time
+cov/maxload-0.2 -> mean ideal delay time
+    seperate radzi sobie lepiej szczególnie przy małym obciążeniu
+
+max-load cov10 -> mean ideal delay time
+    im większe współczynnik zmienności rozmiaru zadań tym bardziej się opłaca mieć podzielone na małe duże zadania (ale wsp 0.25, 0.5)
+    niż dawać to do algorytmu który nie jest wywłaszczeniowy i zawsze daje maxa
+
+nie opłąca się dzielić na małe duże i małym przydzielać 0.75 dla małych
+im większy współczynnik zmienności tym lapiej sobie radzi algorytm dzielący na małe/duże

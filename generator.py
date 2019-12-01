@@ -38,18 +38,18 @@ class Generator:
         print("Number of big tasks")
         print(self._big_tasks)
 
-        print("\nAverage task length")
+        print("Average task length")
         print(np.mean(base_lengths))
 
-        print("\nAverage task length divided by min processors")
+        print("Average task length divided by min processors")
         mean_run_time = np.mean([base_lengths[i] for i in range(self.n)])
         print(mean_run_time)
 
-        print("\nAverage time to submit tasks")
+        print("Average time to submit tasks")
         mean_time_space = mean_run_time / (self.load * self.processors_number)
         print(mean_time_space)
 
-        print("\nAverage time to submit tasks")
+        print("Average time to submit tasks")
         time_spaces = np.random.normal(mean_time_space, mean_time_space * 0.05, self.n)
         print(np.mean(time_spaces))
 

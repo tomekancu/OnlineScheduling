@@ -16,12 +16,15 @@ if __name__ == '__main__':
 
     metrics_all = {}
     n_procesors = 100
-    max_load = 0.5
+    max_load = 0.2
     cov = 2  # 0.3 1 2 5 10
-    for max_res in [0.25, 0.5, 0.75, 1.0, 1.25]:
-        print(max_res)
-        generator = Generator(task_number=1000, processors_number=n_procesors,
-                              coefficient_of_variation=cov, max_load=max_load, max_part_of_processors_number=max_res,
+    for cov in [0.3, 1, 2, 5, 10]:
+        print(cov)
+        n = 10000
+        if cov > 2:
+            n = 10000
+        generator = Generator(task_number=n, processors_number=n_procesors,
+                              coefficient_of_variation=cov, max_load=max_load, max_part_of_processors_number=1.0,
                               print_plots=False)
         instance = generator.generate()
         metrics = {}
@@ -51,9 +54,9 @@ if __name__ == '__main__':
         scheduler5.schedule(n_procesors, instance)
         metrics[scheduler5.get_name()] = get_metrics(scheduler5.procesors)
 
-        metrics_all[max_res] = metrics
+        metrics_all[cov] = metrics
         # print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")
 
     print_metrics(metrics_all,
-                  f"metrics max_load{max_load} cov{cov} max_res",
-                  f"metrics-max-load-{max_load}-cov{cov}-max-res.png")
+                  f"metrics max_load{max_load} cov",
+                  f"metrics-max-load-{max_load}-cov.png")
