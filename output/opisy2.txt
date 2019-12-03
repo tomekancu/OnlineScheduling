@@ -1,0 +1,45 @@
+Główne metryki:
+ - mean response time -> minimalizowany
+ - ideal delay time to response time -> dąży do 1
+ - actual resource load -> maksymalizowany
+
+COV - zmienność rozmiaru zadań
+0.2 i 0.8
+ - actual resource load
+    - Przy małym obiciążeniu wszystkie algorytmy posiadają obciążenie bliskie maksymalnemu dla danego przypadku. Wynika to z bardzo małej szansy potrzeby oczekiawania na zasoby, gdy jest tak mało zadań.
+    - Przy dużym obciażeniu widać że Separate 0.5 nie wykorzystuje optymalnie zasobów, gdyż jedna z kolejek jest zapełniona, a druga pusta w pewnych przypadkach, co powoduje ogólny spadek wydajności.
+ - mean response time
+    - Przy małym obiciążeniu Sprawiedliwy i Separate 0.5 są nieznacznie pogarszane przez zmienność zadań. Szeregowy znacząco się pogarsza, przez większą szansę pojawienia się zadania, gdy inne się jeszcze wykonuje (delay time).
+    - Przy dużym obciażeniu widać również pdoobne zachowanie Szeregowego co dla małych, ale wynik Separate 0.5 jest zdecydowanie gorszy przez niezbalansowanie kolejek.
+ - ideal delay time to response time
+    -
+
+MAX LOAD
+2 i 10
+ - actual resource load
+    - Sprawiedliwy zawsze wykorzystuje zasoby w pełni, dzięki natychmiastowemu przydzieleniu zasobów do zadania
+    - Separate 0.25 przy zbyt dużym obicązeniu wykorzystuje zasoby mniej efektywnie, przez brak małych zadań do wykonania
+    - Szeregowy ?
+ - mean response time - Większa zmienność zadań pogarsza rezultaty, lecz nieliniowo
+    - Sprawiedliwy czas wzrasta lekko, przez większą liczbę długich zadań, lecz nie drastycznie
+    - Separate 0.5 zawsze radzi sobie gorzej, trudno przewidzieć poprawny rozmiar zasobów przeznaczonych na kolejkę, zwłascza przy mocno zmiennych zadaniach
+    - Szeregowy zdecydowanie się pogarsza, przez to że długe zadania blokuja całą kolejkę lub wymagające wielu procesorów długo muszą czekać
+ - ideal delay time to response time
+    -
+
+
+MAX RES
+max-load 1, cov 0.3 i 2
+ - actual resource load
+    - Sprawiedliwy nie jest pogarszany przez zmiane maksymalnych zasobów dla zadania i działa optymalnie
+    - Separate 0.25 i 0.5 mają odpowiednio 75% i 50% obciażenia, wynika z tego że tylko jedna kolejka pracuje przez większosć czasu. Większa zmieność zadań poprawia wydajnosć, ponieważ częściej pracuej druga kolejka.
+    - Szeregowy i Separate posiadają punkt, w którym wydajność drastycznie spada. Spowodowane jest to sytuacją gdy pojawiają sie zadania o maksymalnej (więc wymaganej) liczbie zasobów, które nie pozwoli na umieszczenie dwóch zadań równolegle, a również jedno zadanie nie zajmie znacznej większości zasobów.
+ - mean response time - Większa zmienność zadań pogarsza rezultaty, lecz nieliniowo
+    - Jak wyżej
+ - ideal delay time to response time
+    -
+
+W ogólności Separate i Szeregowy przy dużej zmieności radzi sobie gorzej niż przy mniejszej, a na Sprawiedliwy nie ma ona wpływu.
+Zwiększenie liczy zadań wydłuża czas działania wszystkich algorytmów (duh), ale ma największy wpływa na Separate 0.5, gdyż brak balansu staje się bardziej widocznym problemem.
+Maksymalna liczba zasobów jakiej wymaga zadanie nie ma wpływu na działanie Sprawiedliwego, poniważ w przypadku równoległego wykonywania zadań, bardzo rzadko zachodzą sytuacje zaspokojenia potrzeb zadania.
+W przypadku Szeregowego i Separate istnieje maksymalna liczba zasobów zadania, przy któej wydajność algorymtu spada przez jego zachłanność. Zostaje przydzielona liczba zassobów niewiele większa niż połowa dostępnych z puli (dla danej kolejki) i reszta nie może zostać przydizelona innem u zadaniu.
