@@ -13,7 +13,8 @@ class SeparateScheduler(AbstractScheduler):
         self.scheduler_for_big = NaiveScheduler(load)
 
     def get_n_of_proc_small(self) -> int:
-        return max(1, int(len(self.procesors) * self.proc_of_small))
+        calc_proc_small = int(len(self.procesors) * self.proc_of_small)
+        return max(1, min(len(self.procesors) - 1, calc_proc_small))
 
     def reset(self, n_of_procesors):
         super().reset(n_of_procesors)
@@ -24,8 +25,11 @@ class SeparateScheduler(AbstractScheduler):
         self.scheduler_for_small.procesors = self.procesors[:n_of_proc_for_small]
         self.scheduler_for_big.procesors = self.procesors[n_of_proc_for_small:]
 
+    def is_big_task(self, task: Task) -> bool:
+        return task.base_length > self.task_size_treshold
+
     def on_new_task_event(self, clock: float, new_task: Task):
-        if new_task.base_length > self.task_size_treshold:
+        if self.is_big_task(new_task):
             self.scheduler_for_big.on_new_task_event(clock, new_task)
         else:
             self.scheduler_for_small.on_new_task_event(clock, new_task)

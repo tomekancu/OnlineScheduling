@@ -3,6 +3,7 @@ from generator import Generator
 from schedulers.naive import NaiveScheduler
 from schedulers.separate import SeparateScheduler
 from schedulers.preemption import PreemptionScheduler
+from schedulers.separate_with_premption import SeparateWithPremptionScheduler
 from plot import print_schedulings, print_metrics
 from metrics import get_metrics
 
@@ -11,9 +12,8 @@ def cost_function(task: Task, n: int):
     return task.base_length / n
 
 
-if __name__ == '__main__':
-    print("Start")
-
+def research():
+    global generator, metrics
     metrics_all = {}
     n_procesors = 100
     max_load = 0.2
@@ -56,7 +56,24 @@ if __name__ == '__main__':
 
         metrics_all[cov] = metrics
         # print_schedulings(instance, [scheduler1, scheduler2, scheduler3], "gantt.png")
-
     print_metrics(metrics_all,
                   f"metrics max_load{max_load} cov",
                   f"metrics-max-load-{max_load}-cov.png")
+
+
+def test():
+    instance = [
+        Task(0, 0, 1, 10, 10, cost_function),
+        Task(1, 2, 1, 2, 10, cost_function),
+        Task(2, 2, 1, 1, 10, cost_function),
+        Task(3, 11, 1, 3, 4, cost_function),
+        Task(4, 10, 1, 3, 3, cost_function),
+    ]
+    scheduler = SeparateWithPremptionScheduler(8, 0.5)
+    scheduler.schedule(4, instance)
+    print_schedulings(instance, [scheduler])
+
+
+if __name__ == '__main__':
+    print("Start")
+    test()

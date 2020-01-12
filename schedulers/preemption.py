@@ -42,6 +42,8 @@ class PreemptionScheduler(AbstractScheduler):
         self._stop_executing_tasks(clock)
 
         free_procesors = [p for p in self.procesors]
+
+        # done all taks where max_resources <= to_assing
         while len(task_can_be_begin) > 0:
             to_assign = int(math.floor(len(free_procesors) / len(task_can_be_begin)))
             smaller_than_assign = 0
@@ -59,6 +61,8 @@ class PreemptionScheduler(AbstractScheduler):
 
         if len(task_can_be_begin) == 0:
             return
+
+        # done all task with assigned_resources, the oldest get +1
         to_assign = int(math.floor(len(free_procesors) / len(task_can_be_begin)))
         for i, t in enumerate(reversed(task_can_be_begin)):
             assigned = to_assign
