@@ -12,6 +12,12 @@ class AbstractScheduler:
         self.clock: float = 0
         self.load = load
 
+    def get_name(self) -> str:
+        return self.__class__.__name__
+
+    def get_title(self) -> str:
+        return f"{self.get_name()} load:{self.load}"
+
     def calc_length(self, task: Task, given_procesors: int):
         scale_length = 1 / (1 - self.load)
         return scale_length * task.calc_length(given_procesors)
@@ -40,13 +46,6 @@ class AbstractScheduler:
             self.on_proc_free_event(next_free_event)
             next_free_event = self.next_free_event()
 
-    def free_events(self, max_time: Optional[float] = None) -> List[float]:
-        events = set(x.get_next_free_time() for x in self.procesors)
-        events = [event for event in events if self.clock < event]
-        if max_time is not None:
-            events = [event for event in events if event <= max_time]
-        return sorted(events)
-
     def next_free_event(self, max_time: Optional[float] = None) -> Optional[float]:
         events = set(x.get_next_free_time() for x in self.procesors)
         events = [event for event in events if self.clock < event]
@@ -64,9 +63,3 @@ class AbstractScheduler:
 
     def calc_metrics(self) -> Metrics:
         return get_metrics(self.procesors)
-
-    def get_name(self) -> str:
-        return self.__class__.__name__
-
-    def get_title(self) -> str:
-        return f"{self.get_name()} load:{self.load}"

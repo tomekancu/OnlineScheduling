@@ -14,6 +14,9 @@ class Task:
         self.cost_function = length_function
         self.parts: List[float] = []
 
+    def __repr__(self):
+        return str(self)
+
     def __str__(self) -> str:
         return f"Task(id:{self.id}, ready:{self.ready}, base:{self.base_length}, min:{self.min_resources}, " \
                f"max:{self.max_resources})"
@@ -31,6 +34,9 @@ class Task:
     def left_part(self) -> float:
         return 1 - self.done_part()
 
+    def is_finished(self) -> bool:
+        return self.left_part() <= 0
+
 
 class ExecutingTask:
 
@@ -39,6 +45,9 @@ class ExecutingTask:
         self.start = start
         self.end = end
         self.initial_length = initial_length
+
+    def __repr__(self):
+        return str(self)
 
     def __str__(self) -> str:
         return f"ExecutingTask(start:{self.start}, end:{self.end}, task:{self.task})"
@@ -57,6 +66,9 @@ class Procesor:
         if tasks is None:
             tasks = []
         self.tasks: List[ExecutingTask] = tasks
+
+    def __repr__(self):
+        return str(self)
 
     def __str__(self) -> str:
         return f"Procesor(id:{self.id}, taks:{self.tasks})"

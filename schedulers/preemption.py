@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 import math
 
 from schedulers.abstract import AbstractScheduler
@@ -22,24 +22,14 @@ class PreemptionScheduler(AbstractScheduler):
     def on_proc_free_event(self, clock: float):
         self.try_execute_queue(clock)
 
-    def doing_tasks(self, when: float) -> List[Task]:
-        tasks = []
-        for p in self.procesors:
-            executing_task = p.get_last_doing_task(when)
-            if executing_task is None:
-                continue
-            if executing_task.task in tasks:
-                continue
-            tasks.append(executing_task.task)
-        return tasks
-
     def try_execute_queue(self, clock: float):
-        task_can_be_begin = self._get_tasks_to_do(clock)
+        stoped_tasks = self._stop_executing_tasks(clock)
+        self.queue = stoped_tasks + self.queue
+
+        task_can_be_begin = self._get_tasks_to_do()
 
         if len(task_can_be_begin) == 0:
             return
-
-        self._stop_executing_tasks(clock)
 
         free_procesors = [p for p in self.procesors]
 
@@ -74,8 +64,8 @@ class PreemptionScheduler(AbstractScheduler):
 
             self._start_task(t, assigned_resources, clock)
 
-    def _get_tasks_to_do(self, when: float) -> List[Task]:
-        task_to_finish = sorted(self.doing_tasks(when) + self.queue, key=lambda x: x.ready)
+    def _get_tasks_to_do(self) -> List[Task]:
+        task_to_finish = sorted(self.queue, key=lambda x: x.ready)
         task_can_be_begin = []
         sum_min_proc = 0
         for t in task_to_finish:
@@ -85,7 +75,7 @@ class PreemptionScheduler(AbstractScheduler):
             task_can_be_begin.append(t)
         return task_can_be_begin
 
-    def _stop_executing_tasks(self, when: float):
+    def _stop_executing_tasks(self, when: float) -> List[Task]:
         change_part_task = set()
         for p in self.procesors:
             executing_task = p.get_last_doing_task(when)
@@ -100,6 +90,7 @@ class PreemptionScheduler(AbstractScheduler):
             done_part = executing_task.done_part()
             executing_task.task.parts[-1] *= done_part
             change_part_task.add(executing_task.task)
+        return list(filter(lambda t: not t.is_finished(), change_part_task))
 
     def _start_task(self, t: Task, assigned_resources: List[Procesor], start: float):
         a_r = len(assigned_resources)
