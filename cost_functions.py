@@ -8,7 +8,11 @@ def concave_function(task: Task, n: int) -> float:
 
 # liniowa
 def linear_function(task: Task, n: int) -> float:
-    return task.base_length / n
+    max_val = task.base_length / task.min_resources
+    min_val = task.base_length / task.max_resources
+    len_by_proc = (max_val - min_val) / (task.max_resources - task.min_resources)
+    how_shorter = (n - task.min_resources) * len_by_proc
+    return max_val - how_shorter
 
 
 # wypukla
