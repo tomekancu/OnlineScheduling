@@ -2,7 +2,7 @@ from typing import List, Optional
 import copy
 
 from metrics import Metrics, get_metrics
-from models import Procesor, Task
+from models import Procesor, Task, ExecutingTask
 
 
 class AbstractScheduler:
@@ -10,6 +10,7 @@ class AbstractScheduler:
     def __init__(self, load: float = 0):
         self.procesors: List[Procesor] = []
         self.clock: float = 0
+        self.queue: List[Task] = []
         self.load = load
 
     def get_name(self) -> str:
@@ -25,6 +26,7 @@ class AbstractScheduler:
     def reset(self, n_of_procesors):
         self.procesors = [Procesor(i) for i in range(n_of_procesors)]
         self.clock = 0
+        self.queue = []
 
     def schedule(self, n_of_procesors: int, tasks: List[Task]):
         tasks = copy.deepcopy(tasks)
@@ -60,6 +62,39 @@ class AbstractScheduler:
 
     def on_proc_free_event(self, clock: float):
         pass
+
+    def start_task(self, t: Task, assigned_resources: List[Procesor], start: float):
+        a_r = len(assigned_resources)
+        left = t.left_part()
+        length = self.calc_length(t, a_r) * left
+        end = start + length
+        t.parts.append(left)
+        executing_task = ExecutingTask(t, start, end, length)
+        for p in assigned_resources:
+            p.add_task(executing_task)
+        if t in self.queue:
+            self.queue.remove(t)
+
+    def stop_running_tasks(self, when: float) -> List[Task]:
+        change_part_task = set()
+        for p in self.procesors:
+            executing_task = p.get_last_doing_task(when)
+            if executing_task is None:
+                continue
+
+            executing_task.end = when
+
+            if executing_task.task in change_part_task:
+                continue
+
+            done_part = executing_task.done_part()
+            executing_task.task.parts[-1] *= done_part
+            change_part_task.add(executing_task.task)
+        return list(filter(lambda t: not t.is_finished(), change_part_task))
+
+    def stop_running_tasks_and_add_to_queue(self, when: float):
+        stoped_tasks = self.stop_running_tasks(when)
+        self.queue = stoped_tasks + self.queue
 
     def calc_metrics(self) -> Metrics:
         return get_metrics(self.procesors)

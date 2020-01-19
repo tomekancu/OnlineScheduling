@@ -1,14 +1,13 @@
-from typing import List, Set
+from typing import List
 
 from schedulers.abstract import AbstractScheduler
-from models import Task, ExecutingTask, Procesor
+from models import Task, Procesor
 
 
 class SeparateWithPremptionScheduler(AbstractScheduler):
 
     def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5, load: float = 0):
         super().__init__(load)
-        self.queue: List[Task] = []
         self.task_size_treshold = task_size_treshold
         self.proc_of_small = proc_of_small
         self.procesors_for_small: List[Procesor] = []
@@ -27,7 +26,6 @@ class SeparateWithPremptionScheduler(AbstractScheduler):
 
     def reset(self, n_of_procesors):
         super().reset(n_of_procesors)
-        self.queue = []
         n_of_proc_for_small = self.get_n_of_proc_small()
         self.procesors_for_small = self.procesors[:n_of_proc_for_small]
         self.procesors_for_big = self.procesors[n_of_proc_for_small:]
@@ -43,8 +41,7 @@ class SeparateWithPremptionScheduler(AbstractScheduler):
         self.try_execute_queue(clock)
 
     def try_execute_queue(self, clock: float):
-        stoped_tasks = self._stop_executing_tasks(clock)
-        self.queue = stoped_tasks + self.queue
+        self.stop_running_tasks_and_add_to_queue(clock)
         free_procesors_in_small = [p for p in self.procesors_for_small if p.is_free(clock)]
         free_procesors_in_big = [p for p in self.procesors_for_big if p.is_free(clock)]
 
@@ -105,7 +102,7 @@ class SeparateWithPremptionScheduler(AbstractScheduler):
             del free_procesors_in_small[:smalls]
             assigned_resources += free_procesors_in_big[:bigs]
             del free_procesors_in_big[:bigs]
-            self._start_task(t, assigned_resources, clock)
+            self.start_task(t, assigned_resources, clock)
 
     def get_all_task_can_be_begin(self, available_processors_number: int):
         return [t for t in self.queue
@@ -115,32 +112,3 @@ class SeparateWithPremptionScheduler(AbstractScheduler):
         return [t for t in self.queue
                 if ((big and self.is_big_task(t)) or (not big and not self.is_big_task(t)))
                 and t.min_resources <= available_processors_number]
-
-    def _start_task(self, t: Task, assigned_resources: List[Procesor], start: float):
-        a_r = len(assigned_resources)
-        left = t.left_part()
-        length = self.calc_length(t, a_r) * left
-        end = start + length
-        t.parts.append(left)
-        executing_task = ExecutingTask(t, start, end, length)
-        for p in assigned_resources:
-            p.add_task(executing_task)
-        if t in self.queue:
-            self.queue.remove(t)
-
-    def _stop_executing_tasks(self, when: float) -> List[Task]:
-        change_part_task = set()
-        for p in self.procesors:
-            executing_task = p.get_last_doing_task(when)
-            if executing_task is None:
-                continue
-
-            executing_task.end = when
-
-            if executing_task.task in change_part_task:
-                continue
-
-            done_part = executing_task.done_part()
-            executing_task.task.parts[-1] *= done_part
-            change_part_task.add(executing_task.task)
-        return list(filter(lambda t: not t.is_finished(), change_part_task))
