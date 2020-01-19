@@ -1,9 +1,10 @@
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, Any
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 
 from models import Task
+from cost_functions import concave_function
 
 
 class Generator:
@@ -20,6 +21,7 @@ class Generator:
                  coefficient_of_variation: float,
                  max_load: float,
                  max_part_of_processors_number: float = 1,
+                 length_function: Callable[[Task, int], float] = concave_function,
                  print_plots=False):
         self.n = task_number
         self.processors_number = processors_number
@@ -29,7 +31,7 @@ class Generator:
         self._p_of_big, self._min_max_small, self._min_max_big = Generator.SETTINGS[self.coefficient_of_variation]
         self.max_part_of_processors_number = max_part_of_processors_number
         self.print_plots = print_plots
-        self.length_function = lambda z, n: z.base_length / n
+        self.length_function = length_function
 
     def generate(self):
         print("===== Data generation =====")

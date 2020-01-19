@@ -1,3 +1,4 @@
+from cost_functions import concave_function
 from models import Task
 from generator import Generator
 from schedulers.naive import NaiveScheduler
@@ -6,10 +7,6 @@ from schedulers.preemption import PreemptionScheduler
 from schedulers.separate_with_premption import SeparateWithPremptionScheduler
 from plot import print_schedulings, print_metrics
 from metrics import get_metrics
-
-
-def cost_function(task: Task, n: int):
-    return task.base_length / n
 
 
 def research():
@@ -23,7 +20,9 @@ def research():
         if cov > 2:
             n = 10000
         gen = Generator(task_number=n, processors_number=n_procesors,
-                        coefficient_of_variation=cov, max_load=max_load, max_part_of_processors_number=1.0,
+                        coefficient_of_variation=cov, max_load=max_load,
+                        length_function=concave_function,
+                        max_part_of_processors_number=1.0,
                         print_plots=False)
         instance = gen.generate()
         metr = {}
@@ -62,11 +61,12 @@ def research():
 
 def test():
     instance = [
-        Task(0, 0, 1, 10, 10, cost_function),
-        Task(1, 2, 1, 2, 10, cost_function),
-        Task(2, 2, 1, 1, 10, cost_function),
-        Task(3, 11, 1, 3, 4, cost_function),
-        Task(4, 10, 1, 3, 3, cost_function),
+        Task(0, 0, 1, 10, 10, concave_function),
+        Task(1, 2, 1, 2, 10, concave_function),
+        Task(2, 2, 1, 1, 10, concave_function),
+        Task(3, 10, 1, 3, 4, concave_function),
+        Task(4, 9, 1, 3, 3, concave_function),
+        Task(5, 7.5, 1, 10, 10, concave_function)
     ]
     treshold = 8
     n_proc = 4
