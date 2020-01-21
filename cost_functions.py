@@ -17,4 +17,7 @@ def linear_function(task: Task, n: int) -> float:
 
 # wypukla
 def convex_function(task: Task, n: int) -> float:
-    return task.base_length / n
+    b = task.base_length
+    max_n = task.max_resources
+    min_n = task.min_resources
+    return b / (n - (min_n + max_n)) + b / max_n + b / min_n

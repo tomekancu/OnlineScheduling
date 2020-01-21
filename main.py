@@ -1,11 +1,11 @@
-from cost_functions import concave_function
+from cost_functions import concave_function, linear_function, convex_function
 from models import Task
 from generator import Generator
 from schedulers.naive import NaiveScheduler
 from schedulers.separate import SeparateScheduler
 from schedulers.preemption import PreemptionScheduler
 from schedulers.separate_with_premption import SeparateWithPremptionScheduler
-from plot import print_schedulings, print_metrics
+from plot import print_schedulings, print_metrics, print_cost_functions
 from metrics import get_metrics
 
 
@@ -59,7 +59,15 @@ def research():
                   f"metrics-max-load-{max_load}-cov.png")
 
 
+def print_cost():
+    print_cost_functions(1, 100, 1000, [('concave_function', concave_function),
+                                        ('linear_function', linear_function),
+                                        ('convex_function', convex_function)])
+
+
 def test():
+    print_cost()
+
     instance = [
         Task(0, 0, 1, 10, 10, concave_function),
         Task(1, 2, 1, 2, 10, concave_function),

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Optional, DefaultDict, Set, Dict, Callable
+from typing import List, Optional, DefaultDict, Set, Dict, Callable, Tuple
 
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
@@ -92,4 +92,18 @@ def print_metrics(xs_of_metrics: Dict[float, Dict[str, Metrics]], name, file="me
     handles, labels = axs[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc='lower center', ncol=3)
 
+    fig.savefig(f"output/{file}")
+
+
+def print_cost_functions(begin: int, end: int, base: int,
+                         cost_functions_paris: List[Tuple[str, Callable[[Task, int], float]]],
+                         file="cost.png"):
+    fig, axs = plt.subplots()
+    fig.suptitle("cost functions")
+    for name, func in cost_functions_paris:
+        t = Task(0, 0, begin, end, base, func)
+        xs = list(range(t.min_resources, t.max_resources + 1))
+        ys = [t.calc_length(x) for x in xs]
+        axs.plot(xs, ys, label=name)
+    fig.legend()
     fig.savefig(f"output/{file}")
