@@ -40,11 +40,11 @@ class Task:
 
 class ExecutingTask:
 
-    def __init__(self, task: Task, start: float, end: float, initial_length: float):
+    def __init__(self, task: Task, start: float, initial_length: float):
         self.task = task
         self.start = start
-        self.end = end
         self.initial_length = initial_length
+        self.end = self.start + self.initial_length
 
     def __repr__(self):
         return str(self)

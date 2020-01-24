@@ -1,4 +1,4 @@
-from schedulers.abstract import AbstractScheduler
+from schedulers.abstract import AbstractScheduler, comparator_smallest_task
 from models import Task
 
 
@@ -20,7 +20,7 @@ class NaiveScheduler(AbstractScheduler):
             if len(task_can_be_begin) == 0:
                 break
 
-            task = min(task_can_be_begin, key=lambda x: self.calc_length(x, len(free_procesors)))
+            task = min(task_can_be_begin, key=lambda x: comparator_smallest_task(self, x, len(free_procesors)))
 
             assigned_resources = free_procesors[:task.max_resources]
             del free_procesors[:task.max_resources]

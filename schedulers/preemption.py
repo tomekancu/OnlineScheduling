@@ -1,7 +1,7 @@
 from typing import List
 import math
 
-from schedulers.abstract import AbstractScheduler
+from schedulers.abstract import AbstractScheduler, comparator_oldest_task
 from models import Task
 
 
@@ -59,7 +59,7 @@ class PreemptionScheduler(AbstractScheduler):
             self.start_task(t, assigned_resources, clock)
 
     def _get_tasks_to_do(self) -> List[Task]:
-        task_to_finish = sorted(self.queue, key=lambda x: x.ready)
+        task_to_finish = sorted(self.queue, key=lambda x: comparator_oldest_task(self, x, len(self.procesors)))
         task_can_be_begin = []
         sum_min_proc = 0
         for t in task_to_finish:

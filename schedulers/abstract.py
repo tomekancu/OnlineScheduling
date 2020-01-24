@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 import copy
 
 from metrics import Metrics, get_metrics
@@ -67,9 +67,8 @@ class AbstractScheduler:
         a_r = len(assigned_resources)
         left = t.left_part()
         length = self.calc_length(t, a_r) * left
-        end = start + length
         t.parts.append(left)
-        executing_task = ExecutingTask(t, start, end, length)
+        executing_task = ExecutingTask(t, start, length)
         for p in assigned_resources:
             p.add_task(executing_task)
         if t in self.queue:
@@ -98,3 +97,16 @@ class AbstractScheduler:
 
     def calc_metrics(self) -> Metrics:
         return get_metrics(self.procesors)
+
+
+"""
+minimalizacja pracochłonności
+"""
+
+
+def comparator_oldest_task(scheduler: AbstractScheduler, task: Task, posible_procesors: int) -> Any:
+    return task.ready
+
+
+def comparator_smallest_task(scheduler: AbstractScheduler, task: Task, posible_procesors: int) -> Any:
+    return scheduler.calc_length(task, posible_procesors)

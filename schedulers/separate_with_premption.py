@@ -1,6 +1,6 @@
 from typing import List
 
-from schedulers.abstract import AbstractScheduler
+from schedulers.abstract import AbstractScheduler, comparator_smallest_task
 from models import Task, Procesor
 
 
@@ -51,14 +51,16 @@ class SeparateWithPremptionScheduler(AbstractScheduler):
         task_can_be_begin_in_small = self.get_task_can_be_begin(False, left_small_procs)
         task_can_be_begin_in_big = self.get_task_can_be_begin(True, left_big_procs)
         while len(task_can_be_begin_in_small) > 0:
-            task_in_small = min(task_can_be_begin_in_small, key=lambda x: self.calc_length(x, left_small_procs))
+            task_in_small = min(task_can_be_begin_in_small,
+                                key=lambda x: comparator_smallest_task(self, x, left_small_procs))
             taken_small_number = min(task_in_small.max_resources, left_small_procs)
             assigned.append((task_in_small, taken_small_number, 0))
             self.queue.remove(task_in_small)
             left_small_procs -= taken_small_number
             task_can_be_begin_in_small = self.get_task_can_be_begin(False, left_small_procs)
         while len(task_can_be_begin_in_big) > 0:
-            task_in_big = min(task_can_be_begin_in_big, key=lambda x: self.calc_length(x, left_big_procs))
+            task_in_big = min(task_can_be_begin_in_big,
+                              key=lambda x: comparator_smallest_task(self, x, left_big_procs))
             taken_big_number = min(task_in_big.max_resources, left_big_procs)
             assigned.append((task_in_big, 0, taken_big_number))
             self.queue.remove(task_in_big)
@@ -87,7 +89,8 @@ class SeparateWithPremptionScheduler(AbstractScheduler):
         if left_small_procs + left_big_procs > 0:
             task_can_be_begin = self.get_all_task_can_be_begin(left_small_procs + left_big_procs)
             while len(task_can_be_begin) > 0:
-                task = min(task_can_be_begin, key=lambda x: self.calc_length(x, left_small_procs + left_big_procs))
+                task = min(task_can_be_begin,
+                           key=lambda x: comparator_smallest_task(self, x, left_small_procs + left_big_procs))
                 taken_small_number = min(task.max_resources, left_small_procs)
                 taken_big_number = min(task.max_resources - taken_small_number, left_big_procs)
                 assigned.append((task, taken_small_number, taken_big_number))
