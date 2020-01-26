@@ -7,21 +7,16 @@ from models import Procesor, Task, ExecutingTask
 
 class AbstractScheduler:
 
-    def __init__(self, load: float = 0):
+    def __init__(self):
         self.procesors: List[Procesor] = []
         self.clock: float = 0
         self.queue: List[Task] = []
-        self.load = load
 
     def get_name(self) -> str:
         return self.__class__.__name__
 
     def get_title(self) -> str:
-        return f"{self.get_name()} load:{self.load}"
-
-    def calc_length(self, task: Task, given_procesors: int):
-        scale_length = 1 / (1 - self.load)
-        return scale_length * task.calc_length(given_procesors)
+        return f"{self.get_name()}"
 
     def reset(self, n_of_procesors):
         self.procesors = [Procesor(i) for i in range(n_of_procesors)]
@@ -66,7 +61,7 @@ class AbstractScheduler:
     def start_task(self, t: Task, assigned_resources: List[Procesor], start: float):
         a_r = len(assigned_resources)
         left = t.left_part()
-        length = self.calc_length(t, a_r) * left
+        length = t.calc_length(a_r) * left
         t.parts.append(left)
         executing_task = ExecutingTask(t, start, length)
         for p in assigned_resources:
@@ -109,4 +104,4 @@ def comparator_oldest_task(scheduler: AbstractScheduler, task: Task, posible_pro
 
 
 def comparator_smallest_task(scheduler: AbstractScheduler, task: Task, posible_procesors: int) -> Any:
-    return scheduler.calc_length(task, posible_procesors)
+    return task.calc_length(posible_procesors)

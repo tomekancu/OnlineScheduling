@@ -6,8 +6,8 @@ from models import Task, Procesor
 
 class SeparateWithPremptionScheduler(AbstractScheduler):
 
-    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5, load: float = 0):
-        super().__init__(load)
+    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5):
+        super().__init__()
         self.task_size_treshold = task_size_treshold
         self.proc_of_small = proc_of_small
         self.procesors_for_small: List[Procesor] = []

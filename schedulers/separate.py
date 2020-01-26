@@ -5,12 +5,12 @@ from models import Task
 
 class SeparateScheduler(AbstractScheduler):
 
-    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5, load: float = 0):
-        super().__init__(load)
+    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5):
+        super().__init__()
         self.task_size_treshold = task_size_treshold
         self.proc_of_small = proc_of_small
-        self.scheduler_for_small = NaiveScheduler(load)
-        self.scheduler_for_big = NaiveScheduler(load)
+        self.scheduler_for_small = NaiveScheduler()
+        self.scheduler_for_big = NaiveScheduler()
 
     def get_name(self) -> str:
         return super().get_name() + str(self.proc_of_small)

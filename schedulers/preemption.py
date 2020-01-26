@@ -7,9 +7,6 @@ from models import Task
 
 class PreemptionScheduler(AbstractScheduler):
 
-    def __init__(self, load: float = 0):
-        super().__init__(load)
-
     def on_new_task_event(self, clock: float, new_task: Task):
         self.queue.append(new_task)
         self.try_execute_queue(clock)
