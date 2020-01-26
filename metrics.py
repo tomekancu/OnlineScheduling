@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, List, DefaultDict, Dict
+from typing import Tuple, List, DefaultDict, Dict
 from collections import defaultdict
 from statistics import mean
 
@@ -21,19 +21,12 @@ class Metrics:
 
     def __str__(self):
         return f"M(m={round(self.max_end, 2)}, m_r_t={round(self.mean_response_time, 2)}, " \
-               f"m_p_t={round(self.mean_processing_time, 2)}, p_t_r_t={round(self.processing_time_to_response_time, 2)},\n" \
+               f"m_p_t={round(self.mean_processing_time, 2)}, " \
+               f"p_t_r_t={round(self.processing_time_to_response_time, 2)},\n" \
                f"m_d_t={round(self.mean_delay_time, 2)}, d_t_r_t={round(self.delay_time_to_response_time, 2)}, " \
                f"m_i_d_t={round(self.mean_ideal_delay_time, 2)}, " \
                f"i_t_r_t={round(self.ideal_delay_time_to_response_time, 2)}, " \
                f"a_r_l={round(self.actual_resource_load, 2)})"
-
-
-def _get_end_of_tasks(scheduling: List[Procesor]) -> DefaultDict[Task, float]:
-    result = defaultdict(lambda: 0.0)
-    for p in scheduling:
-        for e in p.tasks:
-            result[e.task] = max(result[e.task], e.end)
-    return result
 
 
 def get_max_end(scheduling: List[Procesor]) -> float:
@@ -45,6 +38,14 @@ def get_max_end(scheduling: List[Procesor]) -> float:
     return result
 
 
+def _get_end_of_tasks(scheduling: List[Procesor]) -> DefaultDict[Task, float]:
+    result = defaultdict(lambda: 0.0)
+    for p in scheduling:
+        for e in p.tasks:
+            result[e.task] = max(result[e.task], e.end)
+    return result
+
+
 def _get_response_time(scheduling: List[Procesor]) -> Dict[Task, float]:
     result = {}
     end_of_tasks = _get_end_of_tasks(scheduling)
@@ -53,8 +54,7 @@ def _get_response_time(scheduling: List[Procesor]) -> Dict[Task, float]:
     return result
 
 
-def get_mean_response_time(scheduling: List[Procesor]) -> float:
-    resposne_time = _get_response_time(scheduling)
+def _get_mean_response_time(resposne_time: Dict[Task, float]) -> float:
     return mean(resposne_time.values())
 
 
@@ -90,14 +90,13 @@ def _get_processing_time(scheduling: List[Procesor]) -> Dict[Task, float]:
     return result
 
 
-def get_mean_processing_time(scheduling: List[Procesor]) -> float:
+def _get_mean_processing_time(scheduling: List[Procesor]) -> float:
     processing_time = _get_processing_time(scheduling)
     return mean(processing_time.values())
 
 
-def get_mean_ideal_delay_time(scheduling: List[Procesor]) -> float:
-    resposne_time = _get_response_time(scheduling)
-    return mean((response - t.calc_length(len(scheduling))) for t, response in resposne_time.items())
+def _get_mean_ideal_delay_time(resposne_time: Dict[Task, float], number_of_procesors: int) -> float:
+    return mean((response - t.calc_length(number_of_procesors)) for t, response in resposne_time.items())
 
 
 def _get_sum_of_procesor_time(scheduling: List[Procesor]) -> float:
@@ -107,13 +106,19 @@ def _get_sum_of_procesor_time(scheduling: List[Procesor]) -> float:
     return result
 
 
-def get_actual_resource_load(scheduling: List[Procesor]) -> float:
-    return _get_sum_of_procesor_time(scheduling) / (len(scheduling) * get_max_end(scheduling))
+def _get_actual_resource_load(scheduling: List[Procesor], max_end: float) -> float:
+    return _get_sum_of_procesor_time(scheduling) / (len(scheduling) * max_end)
 
 
 def get_metrics(scheduling: List[Procesor]) -> Metrics:
-    return Metrics(get_max_end(scheduling),
-                   get_mean_response_time(scheduling),
-                   get_mean_processing_time(scheduling),
-                   get_mean_ideal_delay_time(scheduling),
-                   get_actual_resource_load(scheduling))
+    max_end = get_max_end(scheduling)
+    resposne_time = _get_response_time(scheduling)
+    mean_response_time = _get_mean_response_time(resposne_time)
+    mean_processing_time = _get_mean_processing_time(scheduling)
+    mean_ideal_delay_time = _get_mean_ideal_delay_time(resposne_time, len(scheduling))
+    actual_resource_load = _get_actual_resource_load(scheduling, max_end)
+    return Metrics(max_end,
+                   mean_response_time,
+                   mean_processing_time,
+                   mean_ideal_delay_time,
+                   actual_resource_load)
