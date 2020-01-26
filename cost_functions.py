@@ -1,3 +1,6 @@
+from typing import Callable
+from enum import Enum
+
 from models import Task
 
 
@@ -21,3 +24,12 @@ def convex_function(task: Task, n: int) -> float:
     max_n = task.max_resources
     min_n = task.min_resources
     return b / (n - (min_n + max_n)) + b / max_n + b / min_n
+
+
+class LengthFunctionType(Enum):
+    CONCAVE = ("CONCAVE", concave_function)
+    LINEAR = ("LINEAR", linear_function)
+    CONVEX = ("CONVEX", convex_function)
+
+    def get_function(self) -> Callable[[Task, int], float]:
+        return self.value[1]
