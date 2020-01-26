@@ -3,7 +3,7 @@ from typing import Any, List
 
 from cost_functions import LengthFunctionType
 from generator import Generator
-from metrics import get_metrics
+from metrics import make_metrics
 from plot import print_metrics
 from schedulers.naive import NaiveScheduler
 from schedulers.preemption import PreemptionScheduler
@@ -69,32 +69,32 @@ def make_research(params: Parameters, testing_type: Variable, testing_values: Li
         print("first")
         scheduler1 = NaiveScheduler()
         scheduler1.schedule(params.n_procesors, instance)
-        metr[scheduler1.get_name()] = get_metrics(scheduler1.procesors)
+        metr[scheduler1.get_name()] = make_metrics(scheduler1.procesors)
 
         print("second25")
         scheduler2 = SeparateScheduler(gen.get_mid_task_size(), 0.25)
         scheduler2.schedule(params.n_procesors, instance)
-        metr[scheduler2.get_name()] = get_metrics(scheduler2.procesors)
+        metr[scheduler2.get_name()] = make_metrics(scheduler2.procesors)
 
         # print("second50")
         # scheduler3 = SeparateScheduler(gen.get_mid_task_size(), 0.50)
         # scheduler3.schedule(n_procesors, instance)
-        # metr[scheduler3.get_name()] = get_metrics(scheduler3.procesors)
+        # metr[scheduler3.get_name()] = make_metrics(scheduler3.procesors)
 
         print("second25v2")
         scheduler4 = SeparateWithPremptionScheduler(gen.get_mid_task_size(), 0.25)
         scheduler4.schedule(params.n_procesors, instance)
-        metr[scheduler4.get_name()] = get_metrics(scheduler4.procesors)
+        metr[scheduler4.get_name()] = make_metrics(scheduler4.procesors)
 
         print("second50v2")
         scheduler5 = SeparateWithPremptionScheduler(gen.get_mid_task_size(), 0.5)
         scheduler5.schedule(params.n_procesors, instance)
-        metr[scheduler5.get_name()] = get_metrics(scheduler5.procesors)
+        metr[scheduler5.get_name()] = make_metrics(scheduler5.procesors)
 
         print("third")
         scheduler6 = PreemptionScheduler()
         scheduler6.schedule(params.n_procesors, instance)
-        metr[scheduler6.get_name()] = get_metrics(scheduler6.procesors)
+        metr[scheduler6.get_name()] = make_metrics(scheduler6.procesors)
 
         metrics_all[val] = metr
     print_metrics(metrics_all,

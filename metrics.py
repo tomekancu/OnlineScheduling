@@ -110,13 +110,27 @@ def _get_actual_resource_load(scheduling: List[Procesor], max_end: float) -> flo
     return _get_sum_of_procesor_time(scheduling) / (len(scheduling) * max_end)
 
 
-def get_metrics(scheduling: List[Procesor]) -> Metrics:
+def make_metrics(scheduling: List[Procesor]) -> Metrics:
     max_end = get_max_end(scheduling)
     resposne_time = _get_response_time(scheduling)
     mean_response_time = _get_mean_response_time(resposne_time)
     mean_processing_time = _get_mean_processing_time(scheduling)
     mean_ideal_delay_time = _get_mean_ideal_delay_time(resposne_time, len(scheduling))
     actual_resource_load = _get_actual_resource_load(scheduling, max_end)
+    return Metrics(max_end,
+                   mean_response_time,
+                   mean_processing_time,
+                   mean_ideal_delay_time,
+                   actual_resource_load)
+
+
+def make_mean_metrics(metrics: List[Metrics]) -> Metrics:
+    n = len(metrics)
+    max_end = sum(x.max_end for x in metrics) / n
+    mean_response_time = sum(x.mean_response_time for x in metrics) / n
+    mean_processing_time = sum(x.mean_processing_time for x in metrics) / n
+    mean_ideal_delay_time = sum(x.mean_ideal_delay_time for x in metrics) / n
+    actual_resource_load = sum(x.actual_resource_load for x in metrics) / n
     return Metrics(max_end,
                    mean_response_time,
                    mean_processing_time,

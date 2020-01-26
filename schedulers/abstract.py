@@ -1,7 +1,7 @@
 from typing import List, Optional, Any
 import copy
 
-from metrics import Metrics, get_metrics
+from metrics import Metrics, make_metrics
 from models import Procesor, Task, ExecutingTask
 
 
@@ -96,7 +96,7 @@ class AbstractScheduler:
         self.queue = stoped_tasks + self.queue
 
     def calc_metrics(self) -> Metrics:
-        return get_metrics(self.procesors)
+        return make_metrics(self.procesors)
 
 
 """
