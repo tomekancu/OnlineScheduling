@@ -1,4 +1,4 @@
-from typing import Callable, Tuple, List, Any
+from typing import Callable, Tuple, List
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,26 +34,26 @@ class Generator:
         self.length_function = length_function
 
     def generate(self):
-        print("===== Data generation =====")
+        # print("===== Data generation =====")
         base_lengths = self._generate_base_length()
 
-        print("Number of big tasks")
-        print(self._big_tasks)
+        # print("Number of big tasks")
+        # print(self._big_tasks)
 
-        print("Average task length")
-        print(np.mean(base_lengths))
+        # print("Average task length")
+        # print(np.mean(base_lengths))
 
-        print("Average task length divided by min processors")
+        # print("Average task length divided by min processors")
         mean_run_time = np.mean([base_lengths[i] for i in range(self.n)])
-        print(mean_run_time)
+        # print(mean_run_time)
 
-        print("Average time to submit tasks")
+        # print("Average time to submit tasks")
         mean_time_space = mean_run_time / (self.load * self.processors_number)
-        print(mean_time_space)
+        # print(mean_time_space)
 
-        print("Average time to submit tasks")
+        # print("Average time to submit tasks")
         time_spaces = np.random.normal(mean_time_space, mean_time_space * 0.05, self.n)
-        print(np.mean(time_spaces))
+        # print(np.mean(time_spaces))
 
         time = []
         clock = 0
@@ -64,7 +64,7 @@ class Generator:
         if self.print_plots:
             self._print_plot(base_lengths, time_spaces)
 
-        print("===== End of data generation =====")
+        # print("===== End of data generation =====")
         return [Task(i, time[i], 1, int(self.max_part_of_processors_number * self.processors_number),
                      base_lengths[i], self.length_function) for i in range(self.n)]
 
