@@ -6,10 +6,13 @@ from cost_functions import LengthFunctionType
 from generator import Generator
 from metrics import make_metrics, Metrics, make_mean_metrics
 from plot import print_metrics
+from schedulers.abstract import AbstractScheduler, comparator_oldest_task, comparator_smallest_task
 from schedulers.naive import NaiveScheduler
 from schedulers.preemption import PreemptionScheduler
 from schedulers.separate import SeparateScheduler
 from schedulers.separate_with_premption import SeparateWithPremptionScheduler
+
+ALL_COV = [0.3, 1, 2, 5, 10]
 
 
 class Variable(Enum):
@@ -66,7 +69,7 @@ class Parameters:
 
 
 def to_plot(metrics: Dict[Tuple[Parameters, str], List[Metrics]],
-            default: Parameters, testing_type: Variable, testing_values: List[Any]) -> Dict[float, Dict[str, Metrics]]:
+            default: Parameters, testing_type: Variable, testing_values: List[Any]) -> Dict[Any, Dict[str, Metrics]]:
     result = {}
     for val in testing_values:
         params = default.update(testing_type, val)
@@ -77,7 +80,8 @@ def to_plot(metrics: Dict[Tuple[Parameters, str], List[Metrics]],
     return result
 
 
-def make_research(default: Parameters, testing_type: Variable, testing_values: List[Any]):
+def make_research(default: Parameters, testing_type: Variable, testing_values: List[Any],
+                  schedulers: List[AbstractScheduler]):
     default.print()
     print(f"testing_type={testing_type}, testing_values={testing_values}")
     metrics_all = defaultdict(lambda: [])
@@ -91,35 +95,12 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
                         print_plots=False)
         instance = gen.generate()
 
-        print("first")
-        scheduler1 = NaiveScheduler()
-        scheduler1.schedule(params.n_procesors, instance)
-        metrics_all[(params, scheduler1.get_name())].append(make_metrics(scheduler1.procesors))
-
-        print("second25")
-        scheduler2 = SeparateScheduler(gen.get_mid_task_size(), 0.25)
-        scheduler2.schedule(params.n_procesors, instance)
-        metrics_all[(params, scheduler2.get_name())].append(make_metrics(scheduler2.procesors))
-
-        # print("second50")
-        # scheduler3 = SeparateScheduler(gen.get_mid_task_size(), 0.50)
-        # scheduler3.schedule(n_procesors, instance)
-        # metr[scheduler3.get_name()] = make_metrics(scheduler3.procesors)
-
-        print("second25v2")
-        scheduler4 = SeparateWithPremptionScheduler(gen.get_mid_task_size(), 0.25)
-        scheduler4.schedule(params.n_procesors, instance)
-        metrics_all[(params, scheduler4.get_name())].append(make_metrics(scheduler4.procesors))
-
-        print("second50v2")
-        scheduler5 = SeparateWithPremptionScheduler(gen.get_mid_task_size(), 0.5)
-        scheduler5.schedule(params.n_procesors, instance)
-        metrics_all[(params, scheduler5.get_name())].append(make_metrics(scheduler5.procesors))
-        print("third")
-
-        scheduler6 = PreemptionScheduler()
-        scheduler6.schedule(params.n_procesors, instance)
-        metrics_all[(params, scheduler6.get_name())].append(make_metrics(scheduler6.procesors))
+        for i, scheduler in enumerate(schedulers):
+            if isinstance(scheduler, SeparateScheduler) or isinstance(scheduler, SeparateWithPremptionScheduler):
+                scheduler.task_size_treshold = gen.get_mid_task_size()
+            print(i, scheduler.get_name())
+            scheduler.schedule(params.n_procesors, instance)
+            metrics_all[(params, scheduler.get_name())].append(make_metrics(scheduler.procesors))
     gather = to_plot(
         metrics_all,
         default, testing_type, testing_values
@@ -140,4 +121,11 @@ def research():
         cov=0.3,
         max_part_of_processors=1.0,
         length_function=LengthFunctionType.CONCAVE
-    ), Variable.COV, [0.3, 1, 2, 5, 10])
+    ), Variable.COV, ALL_COV,
+        [
+            NaiveScheduler(),
+            SeparateScheduler(0, 0.25),
+            SeparateWithPremptionScheduler(0, 0.25),
+            SeparateWithPremptionScheduler(0, 0.5),
+            PreemptionScheduler(),
+        ])

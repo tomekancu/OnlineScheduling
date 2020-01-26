@@ -1,9 +1,10 @@
 from collections import defaultdict
-from typing import List, Optional, DefaultDict, Set, Dict, Callable, Tuple
+from typing import List, Optional, DefaultDict, Set, Dict, Callable, Tuple, Any
 
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
+from cost_functions import LengthFunctionType
 from schedulers.abstract import AbstractScheduler
 from metrics import Metrics, get_max_end
 from models import Task, Procesor
@@ -58,7 +59,7 @@ def plot_scheduling(ax: Axes, instance: List[Task], scheduling: List[Procesor], 
     ax2.set_xticklabels(labels_ready_time)
 
 
-def _to_plot(xs_of_metrics: Dict[float, Dict[str, Metrics]], func: Callable[[Metrics], float]):
+def _to_plot(xs_of_metrics: Dict[Any, Dict[str, Metrics]], func: Callable[[Metrics], float]):
     xs = list(sorted(xs_of_metrics.keys()))
     plots = defaultdict(lambda: [])
     for x in xs:
@@ -67,12 +68,13 @@ def _to_plot(xs_of_metrics: Dict[float, Dict[str, Metrics]], func: Callable[[Met
     return plots
 
 
-def print_metrics(xs_of_metrics: Dict[float, Dict[str, Metrics]], name, file="metrics.png"):
+def print_metrics(xs_of_metrics: Dict[Any, Dict[str, Metrics]], name, file="metrics.png"):
     fig, axs = plt.subplots(nrows=3, ncols=3, squeeze=False, figsize=(12, 12))
     fig.suptitle(name)
     fig.tight_layout(pad=4, h_pad=3)
 
     xs = list(sorted(xs_of_metrics.keys()))
+    xs = list(map(lambda x: x if isinstance(x, int) or isinstance(x, float) or isinstance(x, str) else str(x), xs))
 
     for i, (name, func) in enumerate(
             {"max end": lambda x: x.max_end,

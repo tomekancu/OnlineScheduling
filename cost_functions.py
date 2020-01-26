@@ -31,5 +31,20 @@ class LengthFunctionType(Enum):
     LINEAR = ("LINEAR", linear_function)
     CONVEX = ("CONVEX", convex_function)
 
+    def __str__(self):
+        return self.value[0]
+
+    def __hash__(self):
+        return hash(self.value[0])
+
+    def __eq__(self, other):
+        return self.value[0] == other.value[0]
+
+    def __lt__(self, other):
+        return self.value[0] < other.value[0]
+
+    def __gt__(self, other):
+        return self.value[0] > other.value[0]
+
     def get_function(self) -> Callable[[Task, int], float]:
         return self.value[1]

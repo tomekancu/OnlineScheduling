@@ -1,4 +1,4 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Callable
 import copy
 
 from metrics import Metrics, make_metrics
@@ -7,13 +7,14 @@ from models import Procesor, Task, ExecutingTask
 
 class AbstractScheduler:
 
-    def __init__(self):
+    def __init__(self, priority_function: Callable[['AbstractScheduler', Task, int], Any]):
+        self.priority_function = priority_function
         self.procesors: List[Procesor] = []
         self.clock: float = 0
         self.queue: List[Task] = []
 
     def get_name(self) -> str:
-        return self.__class__.__name__
+        return f"{self.__class__.__name__} {self.priority_function.__name__}"
 
     def get_title(self) -> str:
         return f"{self.get_name()}"

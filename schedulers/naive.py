@@ -1,8 +1,13 @@
+from typing import Callable, Any
+
 from schedulers.abstract import AbstractScheduler, comparator_smallest_task
 from models import Task
 
 
 class NaiveScheduler(AbstractScheduler):
+
+    def __init__(self, priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_smallest_task):
+        super().__init__(priority_function)
 
     def on_new_task_event(self, clock: float, new_task: Task):
         self.queue.append(new_task)
@@ -20,7 +25,7 @@ class NaiveScheduler(AbstractScheduler):
             if len(task_can_be_begin) == 0:
                 break
 
-            task = min(task_can_be_begin, key=lambda x: comparator_smallest_task(self, x, len(free_procesors)))
+            task = min(task_can_be_begin, key=lambda x: self.priority_function(self, x, len(free_procesors)))
 
             assigned_resources = free_procesors[:task.max_resources]
             del free_procesors[:task.max_resources]
