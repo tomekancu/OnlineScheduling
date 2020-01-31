@@ -46,7 +46,7 @@ class Parameters:
                 other.max_part_of_processors, other.length_function)
 
     def update(self, testing_type: Variable, val: Any) -> 'Parameters':
-        params = Parameters(self.test_number, self.n_procesors, self.task_number, self.max_load, self.cov,
+        params = Parameters(0, self.n_procesors, self.task_number, self.max_load, self.cov,
                             self.max_part_of_processors, self.length_function)
         if testing_type == Variable.N_PROCESORS:
             params.n_procesors = val
@@ -85,22 +85,23 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
     default.print()
     print(f"testing_type={testing_type}, testing_values={testing_values}")
     metrics_all = defaultdict(lambda: [])
-    for val in testing_values:
-        print(f"testing: {val}")
-        params = default.update(testing_type, val)
-        gen = Generator(task_number=params.task_number, processors_number=params.n_procesors,
-                        coefficient_of_variation=params.cov, max_load=params.max_load,
-                        length_function=params.length_function.get_function(),
-                        max_part_of_processors_number=params.max_part_of_processors,
-                        print_plots=False)
-        instance = gen.generate()
+    for test_id in range(default.test_number):
+        for val in testing_values:
+            print(f"testing: {val}")
+            params = default.update(testing_type, val)
+            gen = Generator(task_number=params.task_number, processors_number=params.n_procesors,
+                            coefficient_of_variation=params.cov, max_load=params.max_load,
+                            length_function=params.length_function.get_function(),
+                            max_part_of_processors_number=params.max_part_of_processors,
+                            print_plots=False)
+            instance = gen.generate()
 
-        for i, scheduler in enumerate(schedulers):
-            if isinstance(scheduler, SeparateScheduler) or isinstance(scheduler, SeparateWithPremptionScheduler):
-                scheduler.task_size_treshold = gen.get_mid_task_size()
-            print(i, scheduler.get_name())
-            scheduler.schedule(params.n_procesors, instance)
-            metrics_all[(params, scheduler.get_name())].append(make_metrics(scheduler.procesors))
+            for i, scheduler in enumerate(schedulers):
+                if isinstance(scheduler, SeparateScheduler) or isinstance(scheduler, SeparateWithPremptionScheduler):
+                    scheduler.task_size_treshold = gen.get_mid_task_size()
+                print(i, scheduler.get_name())
+                scheduler.schedule(params.n_procesors, instance)
+                metrics_all[(params, scheduler.get_name())].append(make_metrics(scheduler.procesors))
     gather = to_plot(
         metrics_all,
         default, testing_type, testing_values

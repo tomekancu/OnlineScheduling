@@ -44,6 +44,9 @@ class AbstractScheduler:
             self.on_proc_free_event(next_free_event)
             next_free_event = self.next_free_event()
 
+        for task in tasks:
+            assert task.is_finished()
+
     def next_free_event(self, max_time: Optional[float] = None) -> Optional[float]:
         events = set(x.get_next_free_time() for x in self.procesors)
         events = [event for event in events if self.clock < event]
