@@ -179,8 +179,9 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
     print_metrics(gather,
                   f"metrics max_load{default.max_load} cov{default.cov} max_part_of_processors{default.max_part_of_processors} "
                   f"length_function{default.length_function} {testing_type}",
-                  f"metrics-max-load-{default.max_load}-cov-{default.cov}-max_part_of_processors-{default.max_part_of_processors}"
-                  f"-length_function-{default.length_function}-{testing_type}.png")
+                  file=f"metrics-max-load-{default.max_load}-cov-{default.cov}"
+                       f"-max_part_of_processors-{default.max_part_of_processors}"
+                       f"-length_function-{default.length_function}-{testing_type}.png")
 
 
 def research():

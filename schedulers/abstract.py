@@ -17,7 +17,7 @@ class AbstractScheduler:
         return f"{self.__class__.__name__}-{self.priority_function.__name__}"
 
     def get_title(self) -> str:
-        return f"{self.get_name()}"
+        return f"{self.__class__.__name__} {self.priority_function.__name__}"
 
     def reset(self, n_of_procesors):
         self.procesors = [Procesor(i) for i in range(n_of_procesors)]

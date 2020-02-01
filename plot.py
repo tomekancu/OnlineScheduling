@@ -68,9 +68,15 @@ def _to_plot(xs_of_metrics: Dict[Any, Dict[str, Metrics]], func: Callable[[Metri
     return plots
 
 
-def print_metrics(xs_of_metrics: Dict[Any, Dict[str, Metrics]], name, file="metrics.png"):
+def print_metrics(xs_of_metrics: Dict[Any, Dict[str, Metrics]], main_name: str,
+                  plot_names_mapping: Dict[str, str] = None, scheduler_names_mapping: Dict[str, str] = None,
+                  file="metrics.png"):
+    if plot_names_mapping is None:
+        plot_names_mapping = {}
+    if scheduler_names_mapping is None:
+        scheduler_names_mapping = {}
     fig, axs = plt.subplots(nrows=3, ncols=3, squeeze=False, figsize=(12, 12))
-    fig.suptitle(name)
+    fig.suptitle(main_name)
     fig.tight_layout(pad=4, h_pad=3)
 
     xs = list(sorted(xs_of_metrics.keys()))
@@ -87,9 +93,11 @@ def print_metrics(xs_of_metrics: Dict[Any, Dict[str, Metrics]], name, file="metr
              "ideal delay time to\n response time": lambda x: x.ideal_delay_time_to_response_time,
              "actual resource load": lambda x: x.actual_resource_load}.items()):
         plots = _to_plot(xs_of_metrics, func)
-        axs[i // 3, i % 3].set_title(name)
+        title = plot_names_mapping.get(name, name)
+        axs[i // 3, i % 3].set_title(title)
         for name_ske, ys in plots.items():
-            axs[i // 3, i % 3].plot(xs, ys, label=name_ske)
+            label = scheduler_names_mapping.get(name_ske, name_ske)
+            axs[i // 3, i % 3].plot(xs, ys, label=label)
 
     handles, labels = axs[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc='lower center', ncol=3)
