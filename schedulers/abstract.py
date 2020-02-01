@@ -14,7 +14,7 @@ class AbstractScheduler:
         self.queue: List[Task] = []
 
     def get_name(self) -> str:
-        return f"{self.__class__.__name__} {self.priority_function.__name__}"
+        return f"{self.__class__.__name__}-{self.priority_function.__name__}"
 
     def get_title(self) -> str:
         return f"{self.get_name()}"

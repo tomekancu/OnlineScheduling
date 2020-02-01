@@ -28,6 +28,26 @@ class Metrics:
                f"i_t_r_t={round(self.ideal_delay_time_to_response_time, 2)}, " \
                f"a_r_l={round(self.actual_resource_load, 2)})"
 
+    @staticmethod
+    def list() -> List[str]:
+        return ["max_end",
+                "mean_response_time",
+                "mean_processing_time",
+                "mean_ideal_delay_time",
+                "actual_resource_load"]
+
+    def to_dict(self) -> Dict[str, str]:
+        return {"max_end": str(self.max_end),
+                "mean_response_time": str(self.mean_response_time),
+                "mean_processing_time": str(self.mean_processing_time),
+                "mean_ideal_delay_time": str(self.mean_ideal_delay_time),
+                "actual_resource_load": str(self.actual_resource_load)}
+
+    @staticmethod
+    def from_dict(tup: Dict[str, str]) -> 'Metrics':
+        return Metrics(float(tup["max_end"]), float(tup["mean_response_time"]), float(tup["mean_processing_time"]),
+                       float(tup["mean_ideal_delay_time"]), float(tup["actual_resource_load"]))
+
 
 def get_max_end(scheduling: List[Procesor]) -> float:
     result = 0

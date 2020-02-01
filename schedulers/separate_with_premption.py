@@ -15,7 +15,7 @@ class SeparateWithPremptionScheduler(AbstractScheduler):
         self.procesors_for_big: List[Procesor] = []
 
     def get_name(self) -> str:
-        return super().get_name() + str(self.proc_of_small)
+        return super().get_name() + "-" + str(self.proc_of_small)
 
     def get_title(self) -> str:
         return super().get_title() + f" thres:{self.task_size_treshold} " \

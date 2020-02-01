@@ -16,7 +16,7 @@ class SeparateScheduler(AbstractScheduler):
         self.scheduler_for_big = NaiveScheduler(self.priority_function)
 
     def get_name(self) -> str:
-        return super().get_name() + str(self.proc_of_small)
+        return super().get_name() + "-" + str(self.proc_of_small)
 
     def get_title(self) -> str:
         return super().get_title() + f" thres:{self.task_size_treshold} " \
