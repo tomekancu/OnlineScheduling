@@ -89,7 +89,7 @@ class Parameters:
 
     @staticmethod
     def from_dict(tup: Dict[str, str]) -> 'Parameters':
-        length_function = next(filter(lambda x: str(tup["length_function"]) == x, LengthFunctionType))
+        length_function = next(filter(lambda x: str(x) == tup["length_function"], LengthFunctionType))
         return Parameters(int(tup["test_number"]), int(tup["n_procesors"]), int(tup["task_number"]),
                           float(tup["max_load"]), float(tup["cov"]), float(tup["max_part_of_processors"]),
                           length_function)
@@ -103,7 +103,7 @@ class MetricsDatabase:
     def load(self):
         self.database = defaultdict(lambda: [])
         try:
-            with open(self.database_path, 'r', encoding='utf-8') as csvfile:
+            with open(self.database_path, 'r', newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile, delimiter=';')
                 for row in reader:
                     params = Parameters.from_dict(row)
@@ -114,7 +114,7 @@ class MetricsDatabase:
             print("No database")
 
     def save(self):
-        with open(self.database_path, 'w', encoding='utf-8') as csvfile:
+        with open(self.database_path, 'w', encoding='utf-8', newline='') as csvfile:
             fieldnames = ["name"] + Parameters.list() + Metrics.list()
             writer = csv.DictWriter(csvfile, fieldnames, delimiter=';')
             writer.writeheader()
