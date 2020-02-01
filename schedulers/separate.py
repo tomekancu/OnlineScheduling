@@ -1,30 +1,18 @@
 from typing import Callable, Any
 
+from schedulers.abstract_separate import AbstractSeparateScheduler
 from schedulers.abstract import AbstractScheduler, comparator_smallest_task
 from schedulers.naive import NaiveScheduler
 from models import Task
 
 
-class SeparateScheduler(AbstractScheduler):
+class SeparateScheduler(AbstractSeparateScheduler):
 
     def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5,
                  priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_smallest_task):
-        super().__init__(priority_function)
-        self.task_size_treshold = task_size_treshold
-        self.proc_of_small = proc_of_small
+        super().__init__(task_size_treshold, proc_of_small, priority_function)
         self.scheduler_for_small = NaiveScheduler(self.priority_function)
         self.scheduler_for_big = NaiveScheduler(self.priority_function)
-
-    def get_name(self) -> str:
-        return super().get_name() + "-" + str(self.proc_of_small)
-
-    def get_title(self) -> str:
-        return super().get_title() + f" thres:{self.task_size_treshold} " \
-                                     f"small:{self.proc_of_small}:{self.get_n_of_proc_small()}"
-
-    def get_n_of_proc_small(self) -> int:
-        calc_proc_small = int(len(self.procesors) * self.proc_of_small)
-        return max(1, min(len(self.procesors) - 1, calc_proc_small))
 
     def reset(self, n_of_procesors):
         super().reset(n_of_procesors)
@@ -34,9 +22,6 @@ class SeparateScheduler(AbstractScheduler):
 
         self.scheduler_for_small.procesors = self.procesors[:n_of_proc_for_small]
         self.scheduler_for_big.procesors = self.procesors[n_of_proc_for_small:]
-
-    def is_big_task(self, task: Task) -> bool:
-        return task.base_length > self.task_size_treshold
 
     def on_new_task_event(self, clock: float, new_task: Task):
         if self.is_big_task(new_task):

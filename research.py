@@ -8,6 +8,7 @@ from generator import Generator
 from metrics import make_metrics, Metrics, make_mean_metrics
 from plot import print_metrics
 from schedulers.abstract import AbstractScheduler
+from schedulers.abstract_separate import AbstractSeparateScheduler
 from schedulers.naive import NaiveScheduler
 from schedulers.preemption import PreemptionScheduler
 from schedulers.separate import SeparateScheduler
@@ -164,7 +165,7 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
             instance = gen.generate()
 
             for i, scheduler in enumerate(schedulers):
-                if isinstance(scheduler, SeparateScheduler) or isinstance(scheduler, SeparateWithPremptionScheduler):
+                if isinstance(scheduler, AbstractSeparateScheduler):
                     scheduler.task_size_treshold = gen.get_mid_task_size()
                 name = scheduler.get_name()
                 print(i, name)
