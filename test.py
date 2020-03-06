@@ -1,4 +1,4 @@
-from cost_functions import concave_function, linear_function, convex_function
+from cost_functions import LengthFunctionType, concave_function
 from generator import Generator
 from models import Task
 from plot import print_cost_functions, print_schedulings
@@ -9,9 +9,9 @@ from schedulers.separate_with_premption import SeparateWithPremptionScheduler
 
 
 def print_cost():
-    print_cost_functions(1, 100, 1000, [('concave_function', concave_function),
-                                        ('linear_function', linear_function),
-                                        ('convex_function', convex_function)])
+    values = [(en.get_name(), en.get_function()) for en in
+              [LengthFunctionType.CONCAVE, LengthFunctionType.CONCAVE_FLAT]]
+    print_cost_functions(1, 100, 1000, values)
 
 
 def print_distribution():

@@ -7,14 +7,12 @@ from cost_functions import LengthFunctionType
 from generator import Generator
 from metrics import make_metrics, Metrics, make_mean_metrics
 from plot import print_metrics
-from schedulers.abstract import AbstractScheduler
+from schedulers.abstract import AbstractScheduler, comparator_smallest_task, comparator_oldest_task
 from schedulers.abstract_separate import AbstractSeparateScheduler
 from schedulers.naive import NaiveScheduler
 from schedulers.preemption import PreemptionScheduler
 from schedulers.separate import SeparateScheduler
 from schedulers.separate_with_premption import SeparateWithPremptionScheduler
-
-ALL_COV = [0.3, 1, 2, 5, 10]
 
 
 class Variable(Enum):
@@ -141,8 +139,9 @@ def to_plot(metrics_database: MetricsDatabase,
         alg = {}
         for scheduler in schedulers:
             alg_name = scheduler.get_name()
+            alg_title = scheduler.get_title()
             metrics_list = metrics_database.get_metrics(params, alg_name)
-            alg[alg_name] = make_mean_metrics(metrics_list)
+            alg[alg_title] = make_mean_metrics(metrics_list)
         result[val] = alg
     return result
 
@@ -154,8 +153,9 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
     metrics_database = MetricsDatabase()
     metrics_database.load()
     for test_id in range(default.test_number):
+        print(f"test: {test_id}")
         for val in testing_values:
-            print(f"testing: {val}")
+            print(f"test: {test_id} testing: {val}")
             params = default.make_instance_for(testing_type, val)
             gen = Generator(task_number=params.task_number, processors_number=params.n_procesors,
                             coefficient_of_variation=params.cov, max_load=params.max_load,
@@ -168,13 +168,13 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
                 if isinstance(scheduler, AbstractSeparateScheduler):
                     scheduler.task_size_treshold = gen.get_mid_task_size()
                 name = scheduler.get_name()
-                print(i, name)
+                print(f"test: {test_id} testing: {val} i: {i+1}/{len(schedulers)} alg: {name}")
                 in_database = metrics_database.get_metrics(params, name)
                 if len(in_database) < default.test_number:
                     scheduler.schedule(params.n_procesors, instance)
                     metrics = make_metrics(scheduler.procesors)
                     metrics_database.save_metric(params, name, metrics)
-    metrics_database.save()
+            metrics_database.save()
     gather = to_plot(metrics_database, default, testing_type, testing_values, schedulers)
     print_metrics(gather,
                   f"metrics max_load{default.max_load} cov{default.cov} max_part_of_processors{default.max_part_of_processors} "
@@ -184,14 +184,47 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
                        f"-length_function-{default.length_function}-{testing_type}.png")
 
 
+ALL_COV = [0.3, 1, 2, 5, 10]
+ALL_PERCENT = [0.2, 0.4, 0.6, 0.8, 1.0]
+
+
 def research():
-    parameters = Parameters(test_number=1, n_procesors=100, task_number=10_000, max_load=0.2, cov=0.3,
+    # test()
+    schedulers = [
+        NaiveScheduler(comparator_smallest_task),  # better
+        NaiveScheduler(comparator_oldest_task),
+        SeparateScheduler(0, 0.05, comparator_smallest_task),
+        SeparateScheduler(0, 0.25, comparator_smallest_task),  # better
+        SeparateScheduler(0, 0.5, comparator_smallest_task),
+        SeparateScheduler(0, 0.75, comparator_smallest_task),
+        SeparateScheduler(0, 0.95, comparator_smallest_task),
+        SeparateScheduler(0, 0.05, comparator_oldest_task),
+        SeparateScheduler(0, 0.25, comparator_oldest_task),
+        SeparateScheduler(0, 0.5, comparator_oldest_task),
+        SeparateScheduler(0, 0.75, comparator_oldest_task),
+        SeparateScheduler(0, 0.95, comparator_oldest_task),
+        SeparateWithPremptionScheduler(0, 0.05, comparator_smallest_task),
+        SeparateWithPremptionScheduler(0, 0.25, comparator_smallest_task),
+        SeparateWithPremptionScheduler(0, 0.5, comparator_smallest_task),
+        SeparateWithPremptionScheduler(0, 0.75, comparator_smallest_task),
+        SeparateWithPremptionScheduler(0, 0.95, comparator_smallest_task),
+        SeparateWithPremptionScheduler(0, 0.05, comparator_oldest_task),
+        SeparateWithPremptionScheduler(0, 0.25, comparator_oldest_task),
+        SeparateWithPremptionScheduler(0, 0.5, comparator_oldest_task),
+        SeparateWithPremptionScheduler(0, 0.75, comparator_oldest_task),
+        SeparateWithPremptionScheduler(0, 0.95, comparator_oldest_task),  # better
+        PreemptionScheduler(comparator_smallest_task),
+        PreemptionScheduler(comparator_oldest_task),  # better
+    ]
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=1.0, cov=10,
+                            max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE_FLAT)
+    make_research(parameters, Variable.COV, ALL_COV, schedulers)
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
+                            max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE_FLAT)
+    make_research(parameters, Variable.COV, ALL_COV, schedulers)
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=0.3,
+                            max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE_FLAT)
+    make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
                             max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
-    make_research(parameters, Variable.COV, ALL_COV,
-                  [
-                      NaiveScheduler(),
-                      SeparateScheduler(0, 0.25),
-                      SeparateWithPremptionScheduler(0, 0.25),
-                      SeparateWithPremptionScheduler(0, 0.5),
-                      PreemptionScheduler(),
-                  ])
+    make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)
