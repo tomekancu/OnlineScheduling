@@ -4,7 +4,6 @@ from typing import List, Optional, DefaultDict, Set, Dict, Callable, Tuple, Any
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
-from cost_functions import LengthFunctionType
 from schedulers.abstract import AbstractScheduler
 from metrics import Metrics, get_max_end
 from models import Task, Procesor
@@ -95,6 +94,8 @@ def print_metrics(xs_of_metrics: Dict[Any, Dict[str, Metrics]], main_name: str,
         plots = _to_plot(xs_of_metrics, func)
         title = plot_names_mapping.get(name, name)
         axs[i // 3, i % 3].set_title(title)
+        # axs[i // 3, i % 3].set_yscale('log')
+        # axs[i // 3, i % 3].set_xscale('log')
         for name_ske, ys in plots.items():
             label = scheduler_names_mapping.get(name_ske, name_ske)
             axs[i // 3, i % 3].plot(xs, ys, label=label)

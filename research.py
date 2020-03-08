@@ -7,7 +7,7 @@ from cost_functions import LengthFunctionType
 from generator import Generator
 from metrics import make_metrics, Metrics, make_mean_metrics
 from plot import print_metrics
-from schedulers.abstract import AbstractScheduler, comparator_smallest_task, comparator_oldest_task
+from schedulers.abstract import AbstractScheduler, comparator_smallest_task, comparator_smallest_left_task, comparator_oldest_task
 from schedulers.abstract_separate import AbstractSeparateScheduler
 from schedulers.naive import NaiveScheduler
 from schedulers.preemption import PreemptionScheduler
@@ -189,7 +189,6 @@ ALL_PERCENT = [0.2, 0.4, 0.6, 0.8, 1.0]
 
 
 def research():
-    # test()
     schedulers = [
         NaiveScheduler(comparator_smallest_task),  # better
         NaiveScheduler(comparator_oldest_task),
@@ -216,15 +215,15 @@ def research():
         PreemptionScheduler(comparator_smallest_task),
         PreemptionScheduler(comparator_oldest_task),  # better
     ]
-    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=1.0, cov=10,
-                            max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE_FLAT)
-    make_research(parameters, Variable.COV, ALL_COV, schedulers)
-    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
-                            max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE_FLAT)
-    make_research(parameters, Variable.COV, ALL_COV, schedulers)
-    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=0.3,
-                            max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE_FLAT)
-    make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)
-    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
+    # parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=1.0, cov=10,
+    #                         max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
+    # make_research(parameters, Variable.COV, ALL_COV, schedulers)
+    # parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
+    #                         max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
+    # make_research(parameters, Variable.COV, ALL_COV, schedulers)
+    # parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=0.3,
+    #                         max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
+    # make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)
+    parameters = Parameters(test_number=1, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
                             max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
     make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)

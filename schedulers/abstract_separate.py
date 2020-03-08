@@ -16,7 +16,7 @@ class AbstractSeparateScheduler(AbstractScheduler):
         return super().get_name() + "-" + str(self.proc_of_small)
 
     def get_title(self) -> str:
-        return super().get_title() + f" thres:{self.task_size_treshold} small:{self.proc_of_small}"
+        return super().get_title() + f"\nsmall:{self.proc_of_small}"
 
     def get_n_of_proc_small(self) -> int:
         calc_proc_small = int(len(self.procesors) * self.proc_of_small)

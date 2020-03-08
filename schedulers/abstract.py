@@ -109,3 +109,8 @@ def comparator_oldest_task(scheduler: AbstractScheduler, task: Task, posible_pro
 
 def comparator_smallest_task(scheduler: AbstractScheduler, task: Task, posible_procesors: int) -> Any:
     return task.calc_length(posible_procesors)
+
+
+def comparator_smallest_left_task(scheduler: AbstractScheduler, task: Task, posible_procesors: int) -> Any:
+    left = task.left_part()
+    return task.calc_length(posible_procesors) * left

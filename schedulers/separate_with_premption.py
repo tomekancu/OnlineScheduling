@@ -1,14 +1,14 @@
 from typing import List, Callable, Any
 
 from schedulers.abstract_separate import AbstractSeparateScheduler
-from schedulers.abstract import AbstractScheduler, comparator_smallest_task
+from schedulers.abstract import AbstractScheduler, comparator_oldest_task
 from models import Task, Procesor
 
 
 class SeparateWithPremptionScheduler(AbstractSeparateScheduler):
 
     def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5,
-                 priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_smallest_task):
+                 priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_oldest_task):
         super().__init__(task_size_treshold, proc_of_small, priority_function)
         self.procesors_for_small: List[Procesor] = []
         self.procesors_for_big: List[Procesor] = []
