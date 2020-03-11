@@ -15,6 +15,11 @@ def concave_flat_function(task: Task, n: int, beta: float = 0.5) -> float:
     return (1 - beta) * task.base_length / n + beta * b_max
 
 
+# wklesla splaszczona
+def concave_fast_function(task: Task, n: int, beta: float = 2) -> float:
+    return task.base_length / (beta * n)
+
+
 # liniowa
 def linear_function(task: Task, n: int) -> float:
     b_max = task.base_length / task.min_resources
@@ -35,6 +40,7 @@ def convex_function(task: Task, n: int) -> float:
 class LengthFunctionType(Enum):
     CONCAVE = ("CONCAVE", concave_function)
     CONCAVE_FLAT = ("CONCAVE_FLAT", concave_flat_function)
+    CONCAVE_FAST = ("CONCAVE_FAST", concave_fast_function)
     LINEAR = ("LINEAR", linear_function)
     CONVEX = ("CONVEX", convex_function)
 

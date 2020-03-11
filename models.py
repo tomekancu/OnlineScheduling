@@ -28,6 +28,10 @@ class Task:
             return self.cost_function(self, self.max_resources)
         return self.cost_function(self, procs)
 
+    def calc_real_length(self, procs) -> float:
+        left = self.left_part()
+        return self.calc_length(procs) * left
+
     def done_part(self) -> float:
         return sum(self.parts)
 

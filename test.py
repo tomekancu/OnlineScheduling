@@ -2,7 +2,11 @@ from cost_functions import LengthFunctionType, concave_function
 from generator import Generator
 from models import Task
 from plot import print_cost_functions, print_schedulings
+from schedulers.abstract import comparator_oldest_task
 from schedulers.naive import NaiveScheduler
+from schedulers.get_max import GetMaxScheduler
+from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
+from schedulers.paralleled_if_possible import ParalleledIfPossibleScheduler
 from schedulers.preemption import PreemptionScheduler
 from schedulers.separate import SeparateScheduler
 from schedulers.separate_with_premption import SeparateWithPremptionScheduler
@@ -18,12 +22,13 @@ def print_distribution():
     g = Generator(task_number=10000, processors_number=100,
                   coefficient_of_variation=1, max_load=1.0,
                   length_function=concave_function,
-                  max_part_of_processors_number=1.0,
                   print_plots=True)
     g.generate()
 
 
 def test1():
+    treshold = 8
+    n_proc = 4
     instance = [
         Task(0, 0, 1, 10, 10, concave_function),
         Task(1, 2, 1, 2, 10, concave_function),
@@ -32,49 +37,45 @@ def test1():
         Task(4, 9, 1, 3, 3, concave_function),
         Task(5, 7.5, 1, 10, 10, concave_function)
     ]
-    treshold = 8
-    n_proc = 4
-    scheduler1 = NaiveScheduler()
-    scheduler1.schedule(n_proc, instance)
+    schedulers = [
+        GetMaxScheduler(),
+        ChoiceShorterTimeScheduler(),
+        ParalleledIfPossibleScheduler(),
+        SeparateScheduler(treshold, 0.5, comparator_oldest_task),
+        SeparateWithPremptionScheduler(treshold, 0.5)
+    ]
 
-    scheduler2 = SeparateScheduler(treshold, 0.5)
-    scheduler2.schedule(n_proc, instance)
+    for scheduler in schedulers:
+        scheduler.schedule(n_proc, instance)
 
-    scheduler3 = SeparateWithPremptionScheduler(treshold, 0.5)
-    scheduler3.schedule(n_proc, instance)
-
-    scheduler4 = PreemptionScheduler()
-    scheduler4.schedule(n_proc, instance)
-
-    print_schedulings(instance, [scheduler1, scheduler2, scheduler3, scheduler4], "gantt.png")
+    print_schedulings(instance, schedulers, "gantt.png")
 
 
 def test2():
     treshold = 8
     n_proc = 4
     n_min = 1
-    n_max = int(1.0 * n_proc)
     instance = [
-        Task(0, 0, n_min, n_max, 13, concave_function),
-        Task(1, 2, n_min, n_max, 4, concave_function),
-        Task(2, 2, n_min, n_max, 7, concave_function),
-        Task(3, 10, n_min, n_max, 10, concave_function),
-        Task(4, 9, n_min, n_max, 12, concave_function),
-        Task(5, 7.5, n_min, n_max, 11, concave_function)
+        Task(0, 0, n_min, 4, 13, concave_function),
+        Task(1, 2, n_min, 4, 4, concave_function),
+        Task(2, 2, n_min, 4, 7, concave_function),
+        Task(3, 7.5, n_min, 2, 8, concave_function),
+        Task(4, 9, n_min, 2, 12, concave_function),
+        Task(5, 10, n_min, 4, 10, concave_function),
+        Task(6, 12, n_min, 4, 10, concave_function)
     ]
-    scheduler1 = NaiveScheduler()
-    scheduler1.schedule(n_proc, instance)
+    schedulers = [
+        GetMaxScheduler(),
+        ChoiceShorterTimeScheduler(),
+        ParalleledIfPossibleScheduler(),
+        SeparateScheduler(treshold, 0.5, comparator_oldest_task),
+        SeparateWithPremptionScheduler(treshold, 0.5)
+    ]
 
-    scheduler2 = SeparateScheduler(treshold, 0.5)
-    scheduler2.schedule(n_proc, instance)
+    for scheduler in schedulers:
+        scheduler.schedule(n_proc, instance)
 
-    scheduler3 = SeparateWithPremptionScheduler(treshold, 0.5)
-    scheduler3.schedule(n_proc, instance)
-
-    scheduler4 = PreemptionScheduler()
-    scheduler4.schedule(n_proc, instance)
-
-    print_schedulings(instance, [scheduler1, scheduler2, scheduler3, scheduler4], "gantt2.png")
+    print_schedulings(instance, schedulers, "gantt2.png")
 
 
 def test():

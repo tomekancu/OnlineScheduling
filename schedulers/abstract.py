@@ -1,5 +1,5 @@
-from typing import List, Optional, Any, Callable
 import copy
+from typing import List, Optional, Any, Callable
 
 from metrics import Metrics, make_metrics
 from models import Procesor, Task, ExecutingTask
@@ -7,17 +7,23 @@ from models import Procesor, Task, ExecutingTask
 
 class AbstractScheduler:
 
-    def __init__(self, priority_function: Callable[['AbstractScheduler', Task, int], Any]):
+    def __init__(self, priority_function: Optional[Callable[['AbstractScheduler', Task, int], Any]]):
         self.priority_function = priority_function
         self.procesors: List[Procesor] = []
         self.clock: float = 0
         self.queue: List[Task] = []
 
     def get_name(self) -> str:
-        return f"{self.__class__.__name__}-{self.priority_function.__name__}"
+        priority_function_name = ""
+        if self.priority_function is not None:
+            priority_function_name = self.priority_function.__name__
+        return f"{self.__class__.__name__}-{priority_function_name}"
 
     def get_title(self) -> str:
-        return f"{self.__class__.__name__} {self.priority_function.__name__}"
+        priority_function_name = ""
+        if self.priority_function is not None:
+            priority_function_name = self.priority_function.__name__
+        return f"{self.__class__.__name__} {priority_function_name}"
 
     def reset(self, n_of_procesors):
         self.procesors = [Procesor(i) for i in range(n_of_procesors)]
@@ -64,6 +70,7 @@ class AbstractScheduler:
 
     def start_task(self, t: Task, assigned_resources: List[Procesor], start: float):
         a_r = len(assigned_resources)
+        assert a_r >= t.min_resources
         left = t.left_part()
         length = t.calc_length(a_r) * left
         t.parts.append(left)
@@ -112,5 +119,4 @@ def comparator_smallest_task(scheduler: AbstractScheduler, task: Task, posible_p
 
 
 def comparator_smallest_left_task(scheduler: AbstractScheduler, task: Task, posible_procesors: int) -> Any:
-    left = task.left_part()
-    return task.calc_length(posible_procesors) * left
+    return task.calc_real_length(posible_procesors)

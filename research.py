@@ -9,6 +9,9 @@ from metrics import make_metrics, Metrics, make_mean_metrics
 from plot import print_metrics
 from schedulers.abstract import AbstractScheduler, comparator_smallest_task, comparator_smallest_left_task, comparator_oldest_task
 from schedulers.abstract_separate import AbstractSeparateScheduler
+from schedulers.get_max import GetMaxScheduler
+from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
+from schedulers.paralleled_if_possible import ParalleledIfPossibleScheduler
 from schedulers.naive import NaiveScheduler
 from schedulers.preemption import PreemptionScheduler
 from schedulers.separate import SeparateScheduler
@@ -160,7 +163,6 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
             gen = Generator(task_number=params.task_number, processors_number=params.n_procesors,
                             coefficient_of_variation=params.cov, max_load=params.max_load,
                             length_function=params.length_function.get_function(),
-                            max_part_of_processors_number=params.max_part_of_processors,
                             print_plots=False)
             instance = gen.generate()
 

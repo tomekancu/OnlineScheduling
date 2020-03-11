@@ -20,7 +20,6 @@ class Generator:
                  processors_number: int,
                  coefficient_of_variation: float,
                  max_load: float,
-                 max_part_of_processors_number: float = 1,
                  length_function: Callable[[Task, int], float] = concave_function,
                  print_plots=False):
         self.n = task_number
@@ -29,7 +28,6 @@ class Generator:
         self.load = max_load
         self._big_tasks = 0
         self._p_of_big, self._min_max_small, self._min_max_big = Generator.SETTINGS[self.coefficient_of_variation]
-        self.max_part_of_processors_number = max_part_of_processors_number
         self.print_plots = print_plots
         self.length_function = length_function
 
@@ -61,12 +59,15 @@ class Generator:
             time.append(clock)
             clock += abs(space)
 
+        mins = [int(random.randint(1, max(int(0.05 * self.processors_number), 1))) for i in range(self.n)]
+        maxes = [int(random.randint(max(int(0.5 * self.processors_number), mins[i]), self.processors_number)) for i in
+                 range(self.n)]
+
         if self.print_plots:
-            self._print_plot(base_lengths, time_spaces)
+            self._print_plot(base_lengths, time_spaces, mins, maxes)
 
         # print("===== End of data generation =====")
-        return [Task(i, time[i], 1, int(self.max_part_of_processors_number * self.processors_number),
-                     base_lengths[i], self.length_function) for i in range(self.n)]
+        return [Task(i, time[i], mins[i], maxes[i], base_lengths[i], self.length_function) for i in range(self.n)]
 
     def get_mid_task_size(self) -> float:
         return (self._min_max_big[0] - self._min_max_small[1]) / 2
@@ -118,8 +119,8 @@ class Generator:
         std_p = np.std(data)
         return std_p / mean_p
 
-    def _print_plot(self, base_lengths, time_spaces):
-        fig, axs = plt.subplots(nrows=2)
+    def _print_plot(self, base_lengths, time_spaces, mins, maxs):
+        fig, axs = plt.subplots(nrows=4)
         fig.tight_layout()
 
         axs[0].hist(base_lengths, bins=max(10, self.n // 10))
@@ -127,5 +128,11 @@ class Generator:
 
         axs[1].hist(time_spaces, bins=min(25, max(10, self.n // 25)))
         axs[1].set_title("Task submitting distribution")
+
+        axs[2].hist(mins, bins=max(1, int(0.05 * self.processors_number)))
+        axs[2].set_title("Mins resources distribution")
+
+        axs[3].hist(maxs, bins=max(1, int(0.5 * self.processors_number))+1)
+        axs[3].set_title("Maxs resources distribution")
 
         fig.savefig("output/distribution.png")
