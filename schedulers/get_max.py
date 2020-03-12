@@ -1,13 +1,11 @@
-from typing import Callable, Any
-
-from schedulers.abstract import AbstractScheduler, comparator_smallest_task
+from schedulers.abstract import AbstractScheduler
 from models import Task
 
 
 class GetMaxScheduler(AbstractScheduler):
 
     def __init__(self):
-        super().__init__(None)
+        super().__init__()
 
     def on_new_task_event(self, clock: float, new_task: Task):
         self.queue.append(new_task)

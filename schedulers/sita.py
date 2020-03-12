@@ -1,18 +1,14 @@
-from typing import Callable, Any
-
-from schedulers.abstract_separate import AbstractSeparateScheduler
-from schedulers.abstract import AbstractScheduler, comparator_smallest_task
-from schedulers.naive import NaiveScheduler
 from models import Task
+from schedulers.abstract_separate import AbstractSeparateScheduler
+from schedulers.get_max import GetMaxScheduler
 
 
-class SeparateScheduler(AbstractSeparateScheduler):
+class SITAScheduler(AbstractSeparateScheduler):
 
-    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5,
-                 priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_smallest_task):
-        super().__init__(task_size_treshold, proc_of_small, priority_function)
-        self.scheduler_for_small = NaiveScheduler(self.priority_function)
-        self.scheduler_for_big = NaiveScheduler(self.priority_function)
+    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5):
+        super().__init__(task_size_treshold, proc_of_small)
+        self.scheduler_for_small = GetMaxScheduler()
+        self.scheduler_for_big = GetMaxScheduler()
 
     def reset(self, n_of_procesors):
         super().reset(n_of_procesors)

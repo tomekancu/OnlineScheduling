@@ -1,5 +1,5 @@
 import copy
-from typing import List, Optional, Any, Callable
+from typing import List, Optional, Any
 
 from metrics import Metrics, make_metrics
 from models import Procesor, Task, ExecutingTask
@@ -7,23 +7,16 @@ from models import Procesor, Task, ExecutingTask
 
 class AbstractScheduler:
 
-    def __init__(self, priority_function: Optional[Callable[['AbstractScheduler', Task, int], Any]]):
-        self.priority_function = priority_function
+    def __init__(self):
         self.procesors: List[Procesor] = []
         self.clock: float = 0
         self.queue: List[Task] = []
 
     def get_name(self) -> str:
-        priority_function_name = ""
-        if self.priority_function is not None:
-            priority_function_name = self.priority_function.__name__
-        return f"{self.__class__.__name__}-{priority_function_name}"
+        return f"{self.__class__.__name__}"
 
     def get_title(self) -> str:
-        priority_function_name = ""
-        if self.priority_function is not None:
-            priority_function_name = self.priority_function.__name__
-        return f"{self.__class__.__name__} {priority_function_name}"
+        return f"{self.__class__.__name__}"
 
     def reset(self, n_of_procesors):
         self.procesors = [Procesor(i) for i in range(n_of_procesors)]

@@ -7,15 +7,13 @@ from cost_functions import LengthFunctionType
 from generator import Generator
 from metrics import make_metrics, Metrics, make_mean_metrics
 from plot import print_metrics
-from schedulers.abstract import AbstractScheduler, comparator_smallest_task, comparator_smallest_left_task, comparator_oldest_task
+from schedulers.abstract import AbstractScheduler
 from schedulers.abstract_separate import AbstractSeparateScheduler
-from schedulers.get_max import GetMaxScheduler
 from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
+from schedulers.get_max import GetMaxScheduler
 from schedulers.paralleled_if_possible import ParalleledIfPossibleScheduler
-from schedulers.naive import NaiveScheduler
-from schedulers.preemption import PreemptionScheduler
-from schedulers.separate import SeparateScheduler
-from schedulers.separate_with_premption import SeparateWithPremptionScheduler
+from schedulers.sita import SITAScheduler
+from schedulers.shared_sita import SharedSITAScheduler
 
 
 class Variable(Enum):
@@ -23,34 +21,32 @@ class Variable(Enum):
     TASK_NUMBER = auto()
     MAX_LOAD = auto()
     COV = auto()
-    MAX_PART_OF_PROCESOR_NUMBER = auto()
     LENGTH_FUNCTION = auto()
 
 
 class Parameters:
     def __init__(self, test_number: int, n_procesors: int, task_number: int, max_load: float, cov: float,
-                 max_part_of_processors: float, length_function: LengthFunctionType):
+                 length_function: LengthFunctionType):
         self.test_number = test_number
         self.n_procesors = n_procesors
         self.task_number = task_number
         self.max_load = max_load
         self.cov = cov
-        self.max_part_of_processors = max_part_of_processors
         self.length_function = length_function
 
     def __hash__(self) -> int:
         return hash((self.test_number, self.n_procesors, self.task_number, self.max_load, self.cov,
-                     self.max_part_of_processors, self.length_function))
+                     self.length_function))
 
     def __eq__(self, other: 'Parameters') -> bool:
         return (self.test_number, self.n_procesors, self.task_number, self.max_load, self.cov,
-                self.max_part_of_processors, self.length_function) == \
+                self.length_function) == \
                (other.test_number, other.n_procesors, other.task_number, other.max_load, other.cov,
-                other.max_part_of_processors, other.length_function)
+                other.length_function)
 
     def make_copy_without_test_number(self) -> 'Parameters':
         return Parameters(0, self.n_procesors, self.task_number, self.max_load, self.cov,
-                          self.max_part_of_processors, self.length_function)
+                          self.length_function)
 
     def make_instance_for(self, testing_type: Optional[Variable], val: Any) -> 'Parameters':
         params = self.make_copy_without_test_number()
@@ -62,8 +58,6 @@ class Parameters:
             params.max_load = val
         elif testing_type == Variable.COV:
             params.cov = val
-        elif testing_type == Variable.MAX_PART_OF_PROCESOR_NUMBER:
-            params.max_part_of_processors = val
         elif testing_type == Variable.LENGTH_FUNCTION:
             params.length_function = val
         return params
@@ -71,29 +65,26 @@ class Parameters:
     def print(self):
         print(f"n_procesors={self.n_procesors}, task_number={self.task_number}")
         print(f"max_load={self.max_load}, cov={self.cov}")
-        print(f"max_part_of_processors={self.max_part_of_processors}, length_function={self.length_function}")
+        print(f"length_function={self.length_function}")
 
     @staticmethod
     def list() -> List[str]:
         return ["test_number", "n_procesors",
                 "task_number",
                 "max_load", "cov",
-                "max_part_of_processors",
                 "length_function"]
 
     def to_dict(self) -> Dict[str, str]:
         return {"test_number": str(self.test_number), "n_procesors": str(self.n_procesors),
                 "task_number": str(self.task_number),
                 "max_load": str(self.max_load), "cov": str(self.cov),
-                "max_part_of_processors": str(self.max_part_of_processors),
                 "length_function": str(self.length_function)}
 
     @staticmethod
     def from_dict(tup: Dict[str, str]) -> 'Parameters':
         length_function = next(filter(lambda x: str(x) == tup["length_function"], LengthFunctionType))
         return Parameters(int(tup["test_number"]), int(tup["n_procesors"]), int(tup["task_number"]),
-                          float(tup["max_load"]), float(tup["cov"]), float(tup["max_part_of_processors"]),
-                          length_function)
+                          float(tup["max_load"]), float(tup["cov"]), length_function)
 
 
 class MetricsDatabase:
@@ -179,10 +170,9 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
             metrics_database.save()
     gather = to_plot(metrics_database, default, testing_type, testing_values, schedulers)
     print_metrics(gather,
-                  f"metrics max_load{default.max_load} cov{default.cov} max_part_of_processors{default.max_part_of_processors} "
+                  f"metrics max_load{default.max_load} cov{default.cov} "
                   f"length_function{default.length_function} {testing_type}",
                   file=f"metrics-max-load-{default.max_load}-cov-{default.cov}"
-                       f"-max_part_of_processors-{default.max_part_of_processors}"
                        f"-length_function-{default.length_function}-{testing_type}.png")
 
 
@@ -192,40 +182,29 @@ ALL_PERCENT = [0.2, 0.4, 0.6, 0.8, 1.0]
 
 def research():
     schedulers = [
-        NaiveScheduler(comparator_smallest_task),  # better
-        NaiveScheduler(comparator_oldest_task),
-        SeparateScheduler(0, 0.05, comparator_smallest_task),
-        SeparateScheduler(0, 0.25, comparator_smallest_task),  # better
-        SeparateScheduler(0, 0.5, comparator_smallest_task),
-        SeparateScheduler(0, 0.75, comparator_smallest_task),
-        SeparateScheduler(0, 0.95, comparator_smallest_task),
-        SeparateScheduler(0, 0.05, comparator_oldest_task),
-        SeparateScheduler(0, 0.25, comparator_oldest_task),
-        SeparateScheduler(0, 0.5, comparator_oldest_task),
-        SeparateScheduler(0, 0.75, comparator_oldest_task),
-        SeparateScheduler(0, 0.95, comparator_oldest_task),
-        SeparateWithPremptionScheduler(0, 0.05, comparator_smallest_task),
-        SeparateWithPremptionScheduler(0, 0.25, comparator_smallest_task),
-        SeparateWithPremptionScheduler(0, 0.5, comparator_smallest_task),
-        SeparateWithPremptionScheduler(0, 0.75, comparator_smallest_task),
-        SeparateWithPremptionScheduler(0, 0.95, comparator_smallest_task),
-        SeparateWithPremptionScheduler(0, 0.05, comparator_oldest_task),
-        SeparateWithPremptionScheduler(0, 0.25, comparator_oldest_task),
-        SeparateWithPremptionScheduler(0, 0.5, comparator_oldest_task),
-        SeparateWithPremptionScheduler(0, 0.75, comparator_oldest_task),
-        SeparateWithPremptionScheduler(0, 0.95, comparator_oldest_task),  # better
-        PreemptionScheduler(comparator_smallest_task),
-        PreemptionScheduler(comparator_oldest_task),  # better
+        GetMaxScheduler(),
+        ChoiceShorterTimeScheduler(),
+        ParalleledIfPossibleScheduler(),
+        SITAScheduler(0, 0.05),
+        SITAScheduler(0, 0.25),  # better
+        SITAScheduler(0, 0.5),
+        SITAScheduler(0, 0.75),
+        SITAScheduler(0, 0.95),
+        SharedSITAScheduler(0, 0.05),
+        SharedSITAScheduler(0, 0.25),
+        SharedSITAScheduler(0, 0.5),
+        SharedSITAScheduler(0, 0.75, ),
+        SharedSITAScheduler(0, 0.95),
     ]
-    # parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=1.0, cov=10,
-    #                         max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
-    # make_research(parameters, Variable.COV, ALL_COV, schedulers)
-    # parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
-    #                         max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
-    # make_research(parameters, Variable.COV, ALL_COV, schedulers)
-    # parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=0.3,
-    #                         max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
-    # make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)
-    parameters = Parameters(test_number=1, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
-                            max_part_of_processors=1.0, length_function=LengthFunctionType.CONCAVE)
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=1.0, cov=10,
+                            length_function=LengthFunctionType.CONCAVE)
+    make_research(parameters, Variable.COV, ALL_COV, schedulers)
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
+                            length_function=LengthFunctionType.CONCAVE)
+    make_research(parameters, Variable.COV, ALL_COV, schedulers)
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=0.3,
+                            length_function=LengthFunctionType.CONCAVE)
+    make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)
+    parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=0.2, cov=10,
+                            length_function=LengthFunctionType.CONCAVE)
     make_research(parameters, Variable.MAX_LOAD, ALL_PERCENT, schedulers)

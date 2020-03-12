@@ -25,33 +25,23 @@ class Generator:
         self.n = task_number
         self.processors_number = processors_number
         self.coefficient_of_variation = coefficient_of_variation
-        self.load = max_load
+        self.max_load = max_load
         self._big_tasks = 0
         self._p_of_big, self._min_max_small, self._min_max_big = Generator.SETTINGS[self.coefficient_of_variation]
         self.print_plots = print_plots
         self.length_function = length_function
 
     def generate(self):
-        # print("===== Data generation =====")
+        mins = [int(random.randint(1, max(int(0.05 * self.processors_number), 1)))
+                for i in range(self.n)]
+        maxes = [int(random.randint(max(int(0.5 * self.processors_number), mins[i]), self.processors_number))
+                 for i in range(self.n)]
+
         base_lengths = self._generate_base_length()
 
-        # print("Number of big tasks")
-        # print(self._big_tasks)
-
-        # print("Average task length")
-        # print(np.mean(base_lengths))
-
-        # print("Average task length divided by min processors")
-        mean_run_time = np.mean([base_lengths[i] for i in range(self.n)])
-        # print(mean_run_time)
-
-        # print("Average time to submit tasks")
-        mean_time_space = mean_run_time / (self.load * self.processors_number)
-        # print(mean_time_space)
-
-        # print("Average time to submit tasks")
+        mean_max_run_time = self._get_mean_max_run_time(base_lengths, mins)
+        mean_time_space = mean_max_run_time / (self.max_load * self.processors_number)
         time_spaces = np.random.normal(mean_time_space, mean_time_space * 0.05, self.n)
-        # print(np.mean(time_spaces))
 
         time = []
         clock = 0
@@ -59,15 +49,14 @@ class Generator:
             time.append(clock)
             clock += abs(space)
 
-        mins = [int(random.randint(1, max(int(0.05 * self.processors_number), 1))) for i in range(self.n)]
-        maxes = [int(random.randint(max(int(0.5 * self.processors_number), mins[i]), self.processors_number)) for i in
-                 range(self.n)]
-
         if self.print_plots:
             self._print_plot(base_lengths, time_spaces, mins, maxes)
 
-        # print("===== End of data generation =====")
         return [Task(i, time[i], mins[i], maxes[i], base_lengths[i], self.length_function) for i in range(self.n)]
+
+    @staticmethod
+    def _get_mean_max_run_time(base_lengths, mins):
+        return np.mean([float(base) / float(m) for base, m in zip(base_lengths, mins)])
 
     def get_mid_task_size(self) -> float:
         return (self._min_max_big[0] - self._min_max_small[1]) / 2
@@ -132,7 +121,7 @@ class Generator:
         axs[2].hist(mins, bins=max(1, int(0.05 * self.processors_number)))
         axs[2].set_title("Mins resources distribution")
 
-        axs[3].hist(maxs, bins=max(1, int(0.5 * self.processors_number))+1)
+        axs[3].hist(maxs, bins=max(1, int(0.5 * self.processors_number)) + 1)
         axs[3].set_title("Maxs resources distribution")
 
         fig.savefig("output/distribution.png")

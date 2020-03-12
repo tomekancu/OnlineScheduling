@@ -1,14 +1,14 @@
-from typing import Callable, Any, List, Tuple
 from collections import defaultdict
+from typing import List, Tuple
 
-from schedulers.abstract import AbstractScheduler, comparator_smallest_task
 from models import Task, Procesor
+from schedulers.abstract import AbstractScheduler
 
 
 class ChoiceShorterTimeScheduler(AbstractScheduler):
 
     def __init__(self):
-        super().__init__(None)
+        super().__init__()
 
     def on_new_task_event(self, clock: float, new_task: Task):
         free_procesors_now = [p for p in self.procesors if p.is_free(clock)]

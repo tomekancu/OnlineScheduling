@@ -1,15 +1,13 @@
-from typing import List, Callable, Any
+from typing import List
 
 from schedulers.abstract_separate import AbstractSeparateScheduler
-from schedulers.abstract import AbstractScheduler, comparator_oldest_task
 from models import Task, Procesor
 
 
-class SeparateWithPremptionScheduler(AbstractSeparateScheduler):
+class SharedSITAScheduler(AbstractSeparateScheduler):
 
-    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5,
-                 priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_oldest_task):
-        super().__init__(task_size_treshold, proc_of_small, priority_function)
+    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5):
+        super().__init__(task_size_treshold, proc_of_small)
         self.procesors_for_small: List[Procesor] = []
         self.procesors_for_big: List[Procesor] = []
 
@@ -37,16 +35,14 @@ class SeparateWithPremptionScheduler(AbstractSeparateScheduler):
         task_can_be_begin_in_small = self.get_task_can_be_begin(False, left_small_procs)
         task_can_be_begin_in_big = self.get_task_can_be_begin(True, left_big_procs)
         while len(task_can_be_begin_in_small) > 0:
-            task_in_small = min(task_can_be_begin_in_small,
-                                key=lambda x: self.priority_function(self, x, left_small_procs))
+            task_in_small = min(task_can_be_begin_in_small, key=lambda x: (x.ready, x.id))
             taken_small_number = min(task_in_small.max_resources, left_small_procs)
             assigned.append((task_in_small, taken_small_number, 0))
             self.queue.remove(task_in_small)
             left_small_procs -= taken_small_number
             task_can_be_begin_in_small = self.get_task_can_be_begin(False, left_small_procs)
         while len(task_can_be_begin_in_big) > 0:
-            task_in_big = min(task_can_be_begin_in_big,
-                              key=lambda x: self.priority_function(self, x, left_big_procs))
+            task_in_big = min(task_can_be_begin_in_big, key=lambda x: (x.ready, x.id))
             taken_big_number = min(task_in_big.max_resources, left_big_procs)
             assigned.append((task_in_big, 0, taken_big_number))
             self.queue.remove(task_in_big)
@@ -75,8 +71,7 @@ class SeparateWithPremptionScheduler(AbstractSeparateScheduler):
         if left_small_procs + left_big_procs > 0:
             task_can_be_begin = self.get_all_task_can_be_begin(left_small_procs + left_big_procs)
             while len(task_can_be_begin) > 0:
-                task = min(task_can_be_begin,
-                           key=lambda x: self.priority_function(self, x, left_small_procs + left_big_procs))
+                task = min(task_can_be_begin, key=lambda x: (x.ready, x.id))
                 taken_small_number = min(task.max_resources, left_small_procs)
                 taken_big_number = min(task.max_resources - taken_small_number, left_big_procs)
                 assigned.append((task, taken_small_number, taken_big_number))

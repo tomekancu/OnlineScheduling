@@ -1,5 +1,3 @@
-from typing import List, Callable, Any
-from itertools import chain
 from schedulers.abstract import AbstractScheduler
 from models import Task
 
@@ -7,7 +5,7 @@ from models import Task
 class ParalleledIfPossibleScheduler(AbstractScheduler):
 
     def __init__(self):
-        super().__init__(None)
+        super().__init__()
 
     def on_new_task_event(self, clock: float, new_task: Task):
         self.queue.append(new_task)

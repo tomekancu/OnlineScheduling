@@ -2,19 +2,16 @@ from cost_functions import LengthFunctionType, concave_function
 from generator import Generator
 from models import Task
 from plot import print_cost_functions, print_schedulings
-from schedulers.abstract import comparator_oldest_task
-from schedulers.naive import NaiveScheduler
-from schedulers.get_max import GetMaxScheduler
 from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
+from schedulers.get_max import GetMaxScheduler
 from schedulers.paralleled_if_possible import ParalleledIfPossibleScheduler
-from schedulers.preemption import PreemptionScheduler
-from schedulers.separate import SeparateScheduler
-from schedulers.separate_with_premption import SeparateWithPremptionScheduler
+from schedulers.sita import SITAScheduler
+from schedulers.shared_sita import SharedSITAScheduler
 
 
 def print_cost():
     values = [(en.get_name(), en.get_function()) for en in
-              [LengthFunctionType.CONCAVE, LengthFunctionType.CONCAVE_FLAT]]
+              [LengthFunctionType.CONCAVE, LengthFunctionType.CONCAVE_FLAT, LengthFunctionType.CONCAVE_FAST]]
     print_cost_functions(1, 25, 1000, values)
 
 
@@ -41,8 +38,8 @@ def test1():
         GetMaxScheduler(),
         ChoiceShorterTimeScheduler(),
         ParalleledIfPossibleScheduler(),
-        SeparateScheduler(treshold, 0.5, comparator_oldest_task),
-        SeparateWithPremptionScheduler(treshold, 0.5)
+        SITAScheduler(treshold, 0.5),
+        SharedSITAScheduler(treshold, 0.5)
     ]
 
     for scheduler in schedulers:
@@ -68,8 +65,8 @@ def test2():
         GetMaxScheduler(),
         ChoiceShorterTimeScheduler(),
         ParalleledIfPossibleScheduler(),
-        SeparateScheduler(treshold, 0.5, comparator_oldest_task),
-        SeparateWithPremptionScheduler(treshold, 0.5)
+        SITAScheduler(treshold, 0.5),
+        SharedSITAScheduler(treshold, 0.5)
     ]
 
     for scheduler in schedulers:

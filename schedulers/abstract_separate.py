@@ -1,14 +1,11 @@
-from typing import Callable, Any
-
 from models import Task
-from schedulers.abstract import AbstractScheduler, comparator_smallest_task
+from schedulers.abstract import AbstractScheduler
 
 
 class AbstractSeparateScheduler(AbstractScheduler):
 
-    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5,
-                 priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_smallest_task):
-        super().__init__(priority_function)
+    def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5):
+        super().__init__()
         self.task_size_treshold = task_size_treshold
         self.proc_of_small = proc_of_small
 

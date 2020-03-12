@@ -7,7 +7,14 @@ from models import Task
 class NaiveScheduler(AbstractScheduler):
 
     def __init__(self, priority_function: Callable[[AbstractScheduler, Task, int], Any] = comparator_smallest_task):
-        super().__init__(priority_function)
+        super().__init__()
+        self.priority_function = priority_function
+
+    def get_name(self) -> str:
+        return super().get_name() + f"-{self.priority_function.__name__}"
+
+    def get_title(self) -> str:
+        return super().get_title() + f" {self.priority_function.__name__}"
 
     def on_new_task_event(self, clock: float, new_task: Task):
         self.queue.append(new_task)
