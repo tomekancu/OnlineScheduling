@@ -185,12 +185,16 @@ def research():
         GetMaxScheduler(),
         ChoiceShorterTimeScheduler(),
         ParalleledIfPossibleScheduler(),
+        SITAScheduler(0, 0.05),
         SITAScheduler(0, 0.25),  # better
         SITAScheduler(0, 0.5),
         SITAScheduler(0, 0.75),
+        SITAScheduler(0, 0.95),
+        SharedSITAScheduler(0, 0.05),
         SharedSITAScheduler(0, 0.25),
         SharedSITAScheduler(0, 0.5),
         SharedSITAScheduler(0, 0.75),
+        SharedSITAScheduler(0, 0.95),
     ]
     parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000, max_load=1.0, cov=10,
                             length_function=LengthFunctionType.CONCAVE)

@@ -17,7 +17,7 @@ class ParalleledIfPossibleScheduler(AbstractScheduler):
     def try_execute_queue(self, clock: float):
         self.stop_running_tasks_and_add_to_queue(clock)
 
-        all_queed_task = sorted(self.queue, key=lambda x: (x.ready, x.id))
+        all_queed_task = sorted(self.queue, key=lambda x: (x.min_resources, x.ready, x.id))
         assigned = {}
 
         left_procs = len(self.procesors)
