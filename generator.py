@@ -39,7 +39,7 @@ class Generator:
 
         base_lengths = self._generate_base_length()
 
-        mean_max_run_time = self._get_mean_max_run_time(base_lengths, mins)
+        mean_max_run_time = self._get_mean_max_run_time(base_lengths, mins, maxes)
         mean_time_space = mean_max_run_time / (self.max_load * self.processors_number)
         time_spaces = np.random.normal(mean_time_space, mean_time_space * 0.05, self.n)
 
@@ -54,9 +54,9 @@ class Generator:
 
         return [Task(i, time[i], mins[i], maxes[i], base_lengths[i], self.length_function) for i in range(self.n)]
 
-    @staticmethod
-    def _get_mean_max_run_time(base_lengths, mins):
-        return np.mean([float(base) / float(m) for base, m in zip(base_lengths, mins)])
+    def _get_mean_max_run_time(self, base_lengths, mins, maxes):
+        return np.mean([Task(0, 0, n_min, n_max, base, self.length_function).calc_length(n_min) for base, n_min, n_max
+                        in zip(base_lengths, mins, maxes)])
 
     def get_mid_task_size(self) -> float:
         return (self._min_max_big[0] - self._min_max_small[1]) / 2
