@@ -66,7 +66,7 @@ class SharedSITAScheduler(AbstractSeparateScheduler):
                 left_small_procs -= added_smalls
                 left_big_procs -= added_bigs
 
-                if left_small_procs + left_big_procs == 0:
+                if left_small_procs + left_big_procs <= 0:
                     break
         if left_small_procs + left_big_procs > 0:
             task_can_be_begin = self.get_all_task_can_be_begin(left_small_procs + left_big_procs)
@@ -89,10 +89,14 @@ class SharedSITAScheduler(AbstractSeparateScheduler):
             self.start_task(t, assigned_resources, clock)
 
     def get_all_task_can_be_begin(self, available_processors_number: int):
+        if available_processors_number <= 0:
+            return []
         return [t for t in self.queue
                 if t.min_resources <= available_processors_number]
 
     def get_task_can_be_begin(self, big: bool, available_processors_number: int):
+        if available_processors_number <= 0:
+            return []
         return [t for t in self.queue
                 if ((big and self.is_big_task(t)) or (not big and not self.is_big_task(t)))
                 and t.min_resources <= available_processors_number]
