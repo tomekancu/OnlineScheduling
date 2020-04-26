@@ -1,8 +1,21 @@
 from typing import Tuple, List, DefaultDict, Dict
+from enum import Enum, auto
 from collections import defaultdict
 from statistics import mean
 
 from models import Procesor, Task
+
+
+class MetricType(Enum):
+    MAX_END = auto()
+    MEAN_RESPONSE_TIME = auto()
+    MEAN_PROCESSING_TIME = auto()
+    MEAN_DELAY_TIME = auto()
+    MEAN_IDEAL_DELAY_TIME = auto()
+    PROCESSING_TIME_TO_RESPONSE_TIME = auto()
+    DELAY_TIME_TO_RESPONSE_TIME = auto()
+    IDEAL_DELAY_TIME_TO_RESPONSE_TIME = auto()
+    ACTUAL_RESOURCE_LOAD = auto()
 
 
 class Metrics:
@@ -27,6 +40,27 @@ class Metrics:
                f"m_i_d_t={round(self.mean_ideal_delay_time, 2)}, " \
                f"i_t_r_t={round(self.ideal_delay_time_to_response_time, 2)}, " \
                f"a_r_l={round(self.actual_resource_load, 2)})"
+
+    def get(self, typ: MetricType) -> float:
+        if typ == MetricType.MAX_END:
+            return self.max_end
+        elif typ == MetricType.MEAN_RESPONSE_TIME:
+            return self.mean_response_time
+        elif typ == MetricType.MEAN_PROCESSING_TIME:
+            return self.mean_processing_time
+        elif typ == MetricType.MEAN_DELAY_TIME:
+            return self.mean_delay_time
+        elif typ == MetricType.MEAN_IDEAL_DELAY_TIME:
+            return self.mean_ideal_delay_time
+        elif typ == MetricType.PROCESSING_TIME_TO_RESPONSE_TIME:
+            return self.processing_time_to_response_time
+        elif typ == MetricType.DELAY_TIME_TO_RESPONSE_TIME:
+            return self.delay_time_to_response_time
+        elif typ == MetricType.IDEAL_DELAY_TIME_TO_RESPONSE_TIME:
+            return self.ideal_delay_time_to_response_time
+        elif typ == MetricType.ACTUAL_RESOURCE_LOAD:
+            return self.actual_resource_load
+        return 0
 
     @staticmethod
     def list() -> List[str]:

@@ -30,7 +30,7 @@ def plot_scheduling(ax: Axes, instance: List[Task], scheduling: List[Procesor], 
         ax.set_title(name)
     ax.grid(True)
 
-    ax.set_xlim(-1, xmax)
+    ax.set_xlim(0, xmax)
     ax.set_xlabel('Time')
     ax.set_ylabel('Processor')
     ax.set_ylim(0, 10 * len(scheduling))
