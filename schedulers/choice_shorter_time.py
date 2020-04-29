@@ -10,6 +10,9 @@ class ChoiceShorterTimeScheduler(AbstractScheduler):
     def __init__(self):
         super().__init__()
 
+    def get_title(self) -> str:
+        return "ChoiceShorterTime"
+
     def on_new_task_event(self, clock: float, new_task: Task):
         free_procesors_now = [p for p in self.procesors if p.is_free(clock)]
         if len(free_procesors_now) < new_task.min_resources:

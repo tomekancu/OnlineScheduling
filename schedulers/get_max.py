@@ -7,6 +7,9 @@ class GetMaxScheduler(AbstractScheduler):
     def __init__(self):
         super().__init__()
 
+    def get_title(self) -> str:
+        return "GetMAX"
+
     def on_new_task_event(self, clock: float, new_task: Task):
         self.queue.append(new_task)
         self.try_execute_queue(clock)

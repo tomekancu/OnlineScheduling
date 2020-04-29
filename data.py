@@ -1,6 +1,6 @@
 import csv
 from collections import defaultdict
-from enum import Enum, auto
+from enum import Enum
 from typing import Optional, Any, List, Dict, DefaultDict, Tuple
 
 from cost_functions import LengthFunctionType
@@ -8,11 +8,11 @@ from metrics import Metrics
 
 
 class Variable(Enum):
-    N_PROCESORS = auto()
-    TASK_NUMBER = auto()
-    MAX_LOAD = auto()
-    COV = auto()
-    LENGTH_FUNCTION = auto()
+    N_PROCESORS = "N"
+    TASK_NUMBER = "M"
+    MAX_LOAD = "$\\rho_{max}$"
+    COV = "$V_s$"
+    LENGTH_FUNCTION = "$p(n, s_i, n_{i,min}, n_{i,max})$"
 
 
 class Parameters:
@@ -69,13 +69,12 @@ class Parameters:
         return {"test_number": str(self.test_number), "n_procesors": str(self.n_procesors),
                 "task_number": str(self.task_number),
                 "max_load": str(self.max_load), "cov": str(self.cov),
-                "length_function": str(self.length_function)}
+                "length_function": str(self.length_function.name)}
 
     @staticmethod
     def from_dict(tup: Dict[str, str]) -> 'Parameters':
-        length_function = next(filter(lambda x: str(x) == tup["length_function"], LengthFunctionType))
         return Parameters(int(tup["test_number"]), int(tup["n_procesors"]), int(tup["task_number"]),
-                          float(tup["max_load"]), float(tup["cov"]), length_function)
+                          float(tup["max_load"]), float(tup["cov"]), LengthFunctionType[tup["length_function"]])
 
 
 class MetricsDatabase:

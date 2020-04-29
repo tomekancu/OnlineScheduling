@@ -11,6 +11,9 @@ class SharedSITAScheduler(AbstractSeparateScheduler):
         self.procesors_for_small: List[Procesor] = []
         self.procesors_for_big: List[Procesor] = []
 
+    def get_title(self) -> str:
+        return f"Shared SITA $\\alpha={self.proc_of_small}$"
+
     def reset(self, n_of_procesors):
         super().reset(n_of_procesors)
         n_of_proc_for_small = self.get_n_of_proc_small()

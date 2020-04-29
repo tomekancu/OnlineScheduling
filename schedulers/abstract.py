@@ -18,6 +18,9 @@ class AbstractScheduler:
     def get_title(self) -> str:
         return f"{self.__class__.__name__}"
 
+    def get_title_latex(self) -> str:
+        return self.get_title()
+
     def reset(self, n_of_procesors):
         self.procesors = [Procesor(i) for i in range(n_of_procesors)]
         self.clock = 0

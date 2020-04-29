@@ -10,7 +10,7 @@ from schedulers.shared_sita import SharedSITAScheduler
 
 
 def print_cost():
-    values = [(en.get_name(), en.get_function()) for en in
+    values = [(en.name, en.get_function()) for en in
               [LengthFunctionType.CONCAVE, LengthFunctionType.CONCAVE_FLAT, LengthFunctionType.CONCAVE_FAST]]
     print_cost_functions(1, 25, 1000, values)
 

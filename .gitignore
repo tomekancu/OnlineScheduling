@@ -112,3 +112,6 @@ venv.bak/
 # System Files
 .DS_Store
 Thumbs.db
+
+# project
+output/temp/

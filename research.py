@@ -2,7 +2,7 @@ from typing import Any, List, Dict
 
 from cost_functions import LengthFunctionType
 from generator import Generator
-from metrics import make_metrics, Metrics, make_mean_metrics
+from metrics import make_metrics, MetricType, Metrics, make_mean_metrics
 from data import Variable, Parameters, MetricsDatabase
 from plot import print_metrics
 from schedulers.abstract import AbstractScheduler
@@ -38,8 +38,53 @@ def print_metrics_for_data(default: Parameters, testing_type: Variable, testing_
     print_metrics(gather,
                   f"metrics max_load{default.max_load} cov{default.cov} "
                   f"length_function{default.length_function} {testing_type}",
-                  file=f"metrics-max-load-{default.max_load}-cov-{default.cov}"
-                       f"-length_function-{default.length_function}-{testing_type}.png")
+                  file=f"temp/metrics-plot.png")
+
+
+def print_latex_plot_for_data(default: Parameters, testing_type: Variable, testing_values: List[Any],
+                              schedulers: List[AbstractScheduler], metric_type: MetricType):
+    plots = ""
+    for scheduler in schedulers:
+        alg_name = scheduler.get_name()
+        alg_title = scheduler.get_title_latex()
+        coordinates = ""
+        for val in testing_values:
+            params = default.make_instance_for(testing_type, val)
+            metrics_list = metrics_database.get_metrics(params, alg_name)
+            metric_value = make_mean_metrics(metrics_list).get(metric_type)
+            coordinates += f"({val}, {metric_value}) "
+        plots += (f"\\addplot+[]\n"
+                  f"coordinates {{\n"
+                  f"    {coordinates}\n"
+                  f"}};\n"
+                  f"\\addlegendentry{{{alg_title}}}\n\n")
+
+    xmode = "normal"
+    if testing_type == Variable.COV:
+        xmode = "log"
+    ymode = "log"
+    if metric_type == MetricType.ACTUAL_RESOURCE_LOAD:
+        ymode = "normal"
+
+    all_plots = (f"\\begin{{tikzpicture}}[]\n"
+                 f"\n"
+                 f"\\begin{{axis}}[\n"
+                 f"    xlabel = {{{testing_type.value}}}, ylabel = {{{metric_type.value}}},\n"
+                 f"    axis lines = left,\n"
+                 f"    grid style = dashed,\n"
+                 f"    ymode = {ymode}, xmode = {xmode},\n"
+                 f"    log basis y = 2, log basis x = 2,\n"
+                 f"    legend style = {{at={{(0.5,-0.15)}}, anchor=north, legend columns=3}},\n"
+                 f"]\n"
+                 f"\n"
+                 f"{plots}"
+                 f"\n"
+                 f"\\end{{axis}}\n"
+                 f"\n"
+                 f"\\end{{tikzpicture}}\n")
+
+    with open('output/temp/metrics-latex-plot.tex', 'w', encoding='utf-8') as file:
+        file.write(all_plots)
 
 
 def make_research(default: Parameters, testing_type: Variable, testing_values: List[Any],
@@ -61,7 +106,7 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
                 if isinstance(scheduler, AbstractSeparateScheduler):
                     scheduler.task_size_treshold = gen.get_mid_task_size()
                 name = scheduler.get_name()
-                print(f"test: {test_id} testing: {val} i: {i+1}/{len(schedulers)} alg: {name}")
+                print(f"test: {test_id} testing: {val} i: {i + 1}/{len(schedulers)} alg: {name}")
                 in_database = metrics_database.get_metrics(params, name)
                 if len(in_database) < default.test_number:
                     scheduler.schedule(params.n_procesors, instance)
@@ -90,9 +135,10 @@ def research():
         SharedSITAScheduler(0, 0.75),
         # SharedSITAScheduler(0, 0.95),
     ]
-    length_function = LengthFunctionType.CONCAVE_FLAT
+    length_function = LengthFunctionType.CONCAVE
     parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000,
                             max_load=1.0, cov=10, length_function=length_function)
+    # print_latex_plot_for_data(parameters, Variable.COV, ALL_COV, schedulers, MetricType.ACTUAL_RESOURCE_LOAD)
     make_research(parameters, Variable.COV, ALL_COV, schedulers)
     parameters = Parameters(test_number=3, n_procesors=100, task_number=10_000,
                             max_load=0.2, cov=10, length_function=length_function)

@@ -1,5 +1,5 @@
 from typing import Callable
-from enum import Enum
+from enum import Enum, auto
 
 from models import Task
 
@@ -38,29 +38,23 @@ def convex_function(task: Task, n: int) -> float:
 
 
 class LengthFunctionType(Enum):
-    CONCAVE = ("CONCAVE", concave_function)
-    CONCAVE_FLAT = ("CONCAVE_FLAT", concave_flat_function)
-    CONCAVE_FAST = ("CONCAVE_FAST", concave_fast_function)
-    LINEAR = ("LINEAR", linear_function)
-    CONVEX = ("CONVEX", convex_function)
-
-    def __str__(self):
-        return self.get_name()
+    CONCAVE = (auto(), concave_function)
+    CONCAVE_FLAT = (auto(), concave_flat_function)
+    CONCAVE_FAST = (auto(), concave_fast_function)
+    LINEAR = (auto(), linear_function)
+    CONVEX = (auto(), convex_function)
 
     def __hash__(self):
-        return hash(self.value[0])
+        return hash(self.name)
 
     def __eq__(self, other):
-        return self.value[0] == other.value[0]
+        return self.name == other.name
 
     def __lt__(self, other):
-        return self.value[0] < other.value[0]
+        return self.name < other.name
 
     def __gt__(self, other):
-        return self.value[0] > other.value[0]
-
-    def get_name(self) -> str:
-        return self.value[0]
+        return self.name > other.name
 
     def get_function(self) -> Callable[[Task, int], float]:
         return self.value[1]

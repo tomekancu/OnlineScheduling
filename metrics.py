@@ -8,14 +8,14 @@ from models import Procesor, Task
 
 class MetricType(Enum):
     MAX_END = auto()
-    MEAN_RESPONSE_TIME = auto()
-    MEAN_PROCESSING_TIME = auto()
-    MEAN_DELAY_TIME = auto()
-    MEAN_IDEAL_DELAY_TIME = auto()
+    MEAN_RESPONSE_TIME = "$\\bar{t_f}$"
+    MEAN_PROCESSING_TIME = "$\\bar{t_p}$"
+    MEAN_DELAY_TIME = "$\\bar{t_o}$"
+    MEAN_IDEAL_DELAY_TIME = "$\\bar{t_o'}$"
     PROCESSING_TIME_TO_RESPONSE_TIME = auto()
     DELAY_TIME_TO_RESPONSE_TIME = auto()
     IDEAL_DELAY_TIME_TO_RESPONSE_TIME = auto()
-    ACTUAL_RESOURCE_LOAD = auto()
+    ACTUAL_RESOURCE_LOAD = "$\\rho$"
 
 
 class Metrics:
