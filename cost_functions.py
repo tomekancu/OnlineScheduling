@@ -38,9 +38,9 @@ def convex_function(task: Task, n: int) -> float:
 
 
 class LengthFunctionType(Enum):
-    CONCAVE = (auto(), concave_function)
-    CONCAVE_FLAT = (auto(), concave_flat_function)
-    CONCAVE_FAST = (auto(), concave_fast_function)
+    CONCAVE = ("$p_e(n, s_i, n_{i,min}, n_{i,max})$", concave_function)
+    CONCAVE_FLAT = ("$p_s(n, s_i, n_{i,min}, n_{i,max})$", concave_flat_function)
+    CONCAVE_FAST = ("$p_r(n, s_i, n_{i,min}, n_{i,max})$", concave_fast_function)
     LINEAR = (auto(), linear_function)
     CONVEX = (auto(), convex_function)
 
@@ -55,6 +55,9 @@ class LengthFunctionType(Enum):
 
     def __gt__(self, other):
         return self.name > other.name
+
+    def get_latex(self):
+        return self.value[0]
 
     def get_function(self) -> Callable[[Task, int], float]:
         return self.value[1]
