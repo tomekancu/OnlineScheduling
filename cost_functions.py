@@ -16,8 +16,8 @@ def concave_flat_function(task: Task, n: int, beta: float = 0.5) -> float:
 
 
 # wklesla splaszczona
-def concave_fast_function(task: Task, n: int, beta: float = 2) -> float:
-    return task.base_length / (beta * n)
+def concave_fast_function(task: Task, n: int) -> float:
+    return task.min_resources * task.base_length / (n * n)
 
 
 # liniowa

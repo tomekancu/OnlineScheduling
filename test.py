@@ -1,6 +1,7 @@
 from cost_functions import LengthFunctionType, concave_function
 from generator import Generator
 from models import Task
+from metrics import make_metrics
 from plot import print_cost_functions, print_schedulings
 from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
 from schedulers.get_max import GetMaxScheduler
@@ -18,7 +19,7 @@ def print_cost():
 def print_distribution():
     g = Generator(task_number=10000, processors_number=100,
                   coefficient_of_variation=1, max_load=1.0,
-                  length_function=concave_function,
+                  length_function=LengthFunctionType.CONCAVE,
                   print_plots=True)
     g.generate()
 
@@ -75,8 +76,23 @@ def test2():
     print_schedulings(instance, schedulers, "gantt2.png")
 
 
+def test_load():
+    n = 100
+    for typ in [LengthFunctionType.CONCAVE, LengthFunctionType.CONCAVE_FAST, LengthFunctionType.CONCAVE_FLAT]:
+        for max_load in [0.2, 0.5, 0.8]:
+            g = Generator(task_number=1000, processors_number=n,
+                          coefficient_of_variation=0.3, max_load=max_load,
+                          length_function=typ)
+            instance = g.generate()
+            scheduler = ParalleledIfPossibleScheduler()
+            scheduler.schedule(n, instance)
+            metrics = make_metrics(scheduler.procesors)
+            print(typ, max_load, metrics.actual_resource_load)
+
+
 def test():
     print_cost()
     print_distribution()
+    test_load()
     test1()
     test2()

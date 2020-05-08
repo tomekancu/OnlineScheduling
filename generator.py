@@ -1,10 +1,10 @@
-from typing import Callable, Tuple, List
+from typing import Tuple, List
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 
 from models import Task
-from cost_functions import concave_function
+from cost_functions import LengthFunctionType
 
 
 class Generator:
@@ -20,7 +20,7 @@ class Generator:
                  processors_number: int,
                  coefficient_of_variation: float,
                  max_load: float,
-                 length_function: Callable[[Task, int], float] = concave_function,
+                 length_function: LengthFunctionType = LengthFunctionType.CONCAVE,
                  print_plots=False):
         self.n = task_number
         self.processors_number = processors_number
@@ -41,7 +41,7 @@ class Generator:
 
         mean_max_run_time = self._get_mean_max_run_time(base_lengths, mins, maxes)
         mean_time_space = mean_max_run_time / (self.max_load * self.processors_number)
-        time_spaces = np.random.normal(mean_time_space, mean_time_space * 0.05, self.n)
+        time_spaces = np.random.exponential(mean_time_space, self.n)
 
         time = []
         clock = 0
@@ -52,11 +52,16 @@ class Generator:
         if self.print_plots:
             self._print_plot(base_lengths, time_spaces, mins, maxes)
 
-        return [Task(i, time[i], mins[i], maxes[i], base_lengths[i], self.length_function) for i in range(self.n)]
+        return [Task(i, time[i], mins[i], maxes[i], base_lengths[i], self.length_function.get_function())
+                for i in range(self.n)]
 
     def _get_mean_max_run_time(self, base_lengths, mins, maxes):
-        return np.mean([Task(0, 0, n_min, n_max, base, self.length_function).calc_length(n_min) for base, n_min, n_max
-                        in zip(base_lengths, mins, maxes)])
+        function = self.length_function.get_function()
+        if self.length_function == LengthFunctionType.CONCAVE_FLAT:
+            return np.mean([function(Task(0, 0, n_min, n_max, base, function), n_max) * n_max
+                            for base, n_min, n_max in zip(base_lengths, mins, maxes)])
+        return np.mean([function(Task(0, 0, n_min, n_max, base, function), n_min) * n_min
+                        for base, n_min, n_max in zip(base_lengths, mins, maxes)])
 
     def get_mid_task_size(self) -> float:
         return (self._min_max_big[0] - self._min_max_small[1]) / 2

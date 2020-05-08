@@ -3,7 +3,7 @@ from typing import Any, List, Dict
 from cost_functions import LengthFunctionType
 from generator import Generator
 from latex import print_latex_plot_for_data, print_latex_plots_for_data
-from metrics import make_metrics, MetricType, Metrics, make_mean_metrics
+from metrics import make_metrics, Metrics, make_mean_metrics
 from data import Variable, Parameters, MetricsDatabase
 from plot import print_metrics
 from schedulers.abstract import AbstractScheduler
@@ -53,7 +53,7 @@ def make_research(default: Parameters, testing_type: Variable, testing_values: L
             params = default.make_instance_for(testing_type, val)
             gen = Generator(task_number=params.task_number, processors_number=params.n_procesors,
                             coefficient_of_variation=params.cov, max_load=params.max_load,
-                            length_function=params.length_function.get_function(),
+                            length_function=params.length_function,
                             print_plots=False)
             instance = gen.generate()
 
