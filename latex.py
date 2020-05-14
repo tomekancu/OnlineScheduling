@@ -67,7 +67,10 @@ def print_latex_plots_for_data(metrics_database: MetricsDatabase,
                               f"plot{i}"))
 
     join_tikz = "%\n".join(tikz)
-    all_plots = (f"\\pgfplotsset{{width=7cm, compat=1.9}}\n"
+    all_plots = (f"% {testing_type.name}\n"
+                 f"% {default.latex()}\n"
+                 f"\n"
+                 f"\\pgfplotsset{{width=7cm, compat=1.9}}\n"
                  f"\n"
                  f"{join_tikz}"
                  f"\n"
@@ -75,7 +78,7 @@ def print_latex_plots_for_data(metrics_database: MetricsDatabase,
 
     with open('output/temp/metrics-latex-plot.tex', 'w', encoding='utf-8') as file:
         file.write(all_plots)
-    default.latex()
+    print(default.latex())
 
 
 def print_latex_plot_for_data(metrics_database: MetricsDatabase,
@@ -84,4 +87,4 @@ def print_latex_plot_for_data(metrics_database: MetricsDatabase,
     all_plots = tkiz_plot(metrics_database, default, testing_type, testing_values, schedulers, metric_type)
     with open('output/temp/metrics-latex-plot.tex', 'w', encoding='utf-8') as file:
         file.write(all_plots)
-    default.latex()
+    print(default.latex())

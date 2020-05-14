@@ -62,11 +62,13 @@ class Parameters:
         print(f"max_load={self.max_load}, cov={self.cov}")
         print(f"length_function={self.length_function}")
 
-    def latex(self):
-        print(f"${Variable.N_PROCESORS.value}={self.n_procesors}$, ${Variable.TASK_NUMBER.value}={self.task_number}$, "
-              f"${_remove_dollar(Variable.MAX_LOAD.value)}={self.max_load}$, "
-              f"${_remove_dollar(Variable.COV.value)}={self.cov}$, "
-              f"${_remove_dollar(Variable.LENGTH_FUNCTION.value)}={_remove_dollar(self.length_function.get_latex())}$")
+    def latex(self) -> str:
+        return (
+            f"${Variable.N_PROCESORS.value}={self.n_procesors}$, ${Variable.TASK_NUMBER.value}={self.task_number}$, "
+            f"${_remove_dollar(Variable.MAX_LOAD.value)}={self.max_load}$, "
+            f"${_remove_dollar(Variable.COV.value)}={self.cov}$, "
+            f"${_remove_dollar(Variable.LENGTH_FUNCTION.value)}={_remove_dollar(self.length_function.get_latex())}$"
+        )
 
     @staticmethod
     def list() -> List[str]:
