@@ -4,9 +4,9 @@ from models import Task
 from metrics import make_metrics
 from plot import print_cost_functions, print_schedulings
 from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
-from schedulers.get_max import GetMaxScheduler
-from schedulers.paralleled_if_possible import ParalleledIfPossibleScheduler
-from schedulers.sita import SITAScheduler
+from schedulers.fifo_with_backfilling import FIFOwithBackfillingScheduler
+from schedulers.fair import FairScheduler
+from schedulers.base_sita import BaseSITAScheduler
 from schedulers.shared_sita import SharedSITAScheduler
 
 
@@ -36,10 +36,10 @@ def test1():
         Task(5, 7.5, 1, 10, 10, concave_function)
     ]
     schedulers = [
-        GetMaxScheduler(),
+        FIFOwithBackfillingScheduler(),
         ChoiceShorterTimeScheduler(),
-        ParalleledIfPossibleScheduler(),
-        SITAScheduler(treshold, 0.5),
+        FairScheduler(),
+        BaseSITAScheduler(treshold, 0.5),
         SharedSITAScheduler(treshold, 0.5)
     ]
 
@@ -63,10 +63,10 @@ def test2():
         Task(6, 12, n_min, 4, 10, concave_function)
     ]
     schedulers = [
-        GetMaxScheduler(),
+        FIFOwithBackfillingScheduler(),
         ChoiceShorterTimeScheduler(),
-        ParalleledIfPossibleScheduler(),
-        SITAScheduler(treshold, 0.5),
+        FairScheduler(),
+        BaseSITAScheduler(treshold, 0.5),
         SharedSITAScheduler(treshold, 0.5)
     ]
 
@@ -84,10 +84,10 @@ def test_load():
                           coefficient_of_variation=0.3, max_load=max_load,
                           length_function=typ)
             instance = g.generate()
-            scheduler = ParalleledIfPossibleScheduler()
+            scheduler = FairScheduler()
             scheduler.schedule(n, instance)
-            metrics = make_metrics(scheduler.procesors)
-            print(typ, max_load, metrics.actual_resource_load)
+            metrics = scheduler.calc_metrics()
+            print(typ, max_load, metrics.resource_usage)
 
 
 def test():

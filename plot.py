@@ -90,7 +90,7 @@ def print_metrics(xs_of_metrics: Dict[Any, Dict[str, Metrics]], main_name: str,
              "processing time to\n response time": lambda x: x.processing_time_to_response_time,
              "delay time to\n response time": lambda x: x.delay_time_to_response_time,
              "ideal delay time to\n response time": lambda x: x.ideal_delay_time_to_response_time,
-             "actual resource load": lambda x: x.actual_resource_load}.items()):
+             "resource load": lambda x: x.resource_usage}.items()):
         plots = _to_plot(xs_of_metrics, func)
         title = plot_names_mapping.get(name, name)
         axs[i // 3, i % 3].set_title(title)

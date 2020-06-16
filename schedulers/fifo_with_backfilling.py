@@ -2,13 +2,13 @@ from schedulers.abstract import AbstractScheduler
 from models import Task
 
 
-class GetMaxScheduler(AbstractScheduler):
+class FIFOwithBackfillingScheduler(AbstractScheduler):
 
     def __init__(self):
         super().__init__()
 
     def get_title(self) -> str:
-        return "GetMAX"
+        return "FIFO with backfilling"
 
     def on_new_task_event(self, clock: float, new_task: Task):
         self.queue.append(new_task)
