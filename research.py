@@ -9,7 +9,7 @@ from plot import print_metrics
 from schedulers.abstract import AbstractScheduler
 from schedulers.abstract_separate import AbstractSeparateScheduler
 from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
-from schedulers.fifo_with_backfilling import FIFOwithBackfillingScheduler
+from schedulers.fcfs_with_backfilling import FCFSwithBackfillingScheduler
 from schedulers.fair import FairScheduler
 from schedulers.base_sita import BaseSITAScheduler
 from schedulers.shared_sita import SharedSITAScheduler
@@ -34,12 +34,12 @@ def to_plot(default: Parameters, testing_type: Variable, testing_values: List[An
 
 
 def print_metrics_for_data(default: Parameters, testing_type: Variable, testing_values: List[Any],
-                           schedulers: List[AbstractScheduler]):
+                           schedulers: List[AbstractScheduler], file="temp/metrics-plot.png"):
     gather = to_plot(default, testing_type, testing_values, schedulers)
     print_metrics(gather,
                   f"metrics max_load{default.max_load} cov{default.cov} "
                   f"length_function{default.length_function} {testing_type}",
-                  file=f"temp/metrics-plot.png")
+                  file=file)
 
 
 def make_research(default: Parameters, testing_type: Variable, testing_values: List[Any],
@@ -82,7 +82,7 @@ ALL_PERCENT = [0.2, 0.4, 0.6, 0.8, 1.0]
 
 def print_all_latex_plot():
     schedulers = [
-        FIFOwithBackfillingScheduler(),
+        FCFSwithBackfillingScheduler(),
         ChoiceShorterTimeScheduler(),
         FairScheduler(),
         BaseSITAScheduler(0, 0.25),
@@ -122,7 +122,7 @@ def research():
         LengthFunctionType.CONCAVE_FAST
     ]:
         schedulers = [
-            FIFOwithBackfillingScheduler(),
+            FCFSwithBackfillingScheduler(),
             ChoiceShorterTimeScheduler(),
             FairScheduler(),
             BaseSITAScheduler(0, 0.25),

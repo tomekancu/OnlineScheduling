@@ -108,7 +108,7 @@ class Generator:
             return random.triangular(low2, high2), True
 
     @staticmethod
-    def _coefficient_of_variation(data: list):
+    def _coefficient_of_variation(data: List[float]) -> float:
         mean_p = np.mean(data)
         std_p = np.std(data)
         return std_p / mean_p

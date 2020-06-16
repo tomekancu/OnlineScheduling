@@ -1,10 +1,9 @@
 from cost_functions import LengthFunctionType, concave_function
 from generator import Generator
 from models import Task
-from metrics import make_metrics
 from plot import print_cost_functions, print_schedulings
 from schedulers.choice_shorter_time import ChoiceShorterTimeScheduler
-from schedulers.fifo_with_backfilling import FIFOwithBackfillingScheduler
+from schedulers.fcfs_with_backfilling import FCFSwithBackfillingScheduler
 from schedulers.fair import FairScheduler
 from schedulers.base_sita import BaseSITAScheduler
 from schedulers.shared_sita import SharedSITAScheduler
@@ -36,7 +35,7 @@ def test1():
         Task(5, 7.5, 1, 10, 10, concave_function)
     ]
     schedulers = [
-        FIFOwithBackfillingScheduler(),
+        FCFSwithBackfillingScheduler(),
         ChoiceShorterTimeScheduler(),
         FairScheduler(),
         BaseSITAScheduler(treshold, 0.5),
@@ -63,7 +62,7 @@ def test2():
         Task(6, 12, n_min, 4, 10, concave_function)
     ]
     schedulers = [
-        FIFOwithBackfillingScheduler(),
+        FCFSwithBackfillingScheduler(),
         ChoiceShorterTimeScheduler(),
         FairScheduler(),
         BaseSITAScheduler(treshold, 0.5),

@@ -30,7 +30,11 @@ def tkiz_plot(metrics_database: MetricsDatabase,
     if testing_type == Variable.COV:
         xmode = "log"
     ymode = "log"  # log
-    if metric_type == MetricType.RESOURCE_USAGE or metric_type == MetricType.ACTUAL_RESOURCE_LOAD:
+    if metric_type == MetricType.RESOURCE_USAGE \
+            or metric_type == MetricType.ACTUAL_RESOURCE_LOAD \
+            or metric_type == MetricType.DELAY_TIME_TO_RESPONSE_TIME \
+            or metric_type == MetricType.DELAY_PROCESSING_TIME_TO_RESPONSE_TIME \
+            or metric_type == MetricType.IDEAL_DELAY_TIME_TO_RESPONSE_TIME:
         ymode = "normal"
     additional_axis_config = [f"    legend style = {{at={{(0.5,-0.15)}}, anchor=north}},\n"]
     if legend_to is not None:
@@ -65,8 +69,12 @@ def print_latex_plots_for_data(metrics_database: MetricsDatabase,
                                file="temp/metrics-latex-plot.tex"):
     tikz = []
     for i, metric_type in enumerate([MetricType.MEAN_RESPONSE_TIME,
-                                     MetricType.MEAN_DELAY_TIME, MetricType.MEAN_DELAY_PROCESSING_TIME,
+                                     MetricType.MEAN_DELAY_TIME,
+                                     MetricType.MEAN_DELAY_PROCESSING_TIME,
                                      MetricType.MEAN_IDEAL_DELAY_TIME,
+                                     # MetricType.DELAY_TIME_TO_RESPONSE_TIME,
+                                     # MetricType.DELAY_PROCESSING_TIME_TO_RESPONSE_TIME,
+                                     # MetricType.IDEAL_DELAY_TIME_TO_RESPONSE_TIME,
                                      MetricType.RESOURCE_USAGE]):
         tikz.append(tkiz_plot(metrics_database,
                               default, testing_type, testing_values, schedulers, metric_type,

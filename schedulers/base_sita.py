@@ -1,14 +1,14 @@
 from models import Task
 from schedulers.abstract_separate import AbstractSeparateScheduler
-from schedulers.fifo_with_backfilling import FIFOwithBackfillingScheduler
+from schedulers.fcfs_with_backfilling import FCFSwithBackfillingScheduler
 
 
 class BaseSITAScheduler(AbstractSeparateScheduler):
 
     def __init__(self, task_size_treshold: float, proc_of_small: float = 0.5):
         super().__init__(task_size_treshold, proc_of_small)
-        self.scheduler_for_small = FIFOwithBackfillingScheduler()
-        self.scheduler_for_big = FIFOwithBackfillingScheduler()
+        self.scheduler_for_small = FCFSwithBackfillingScheduler()
+        self.scheduler_for_big = FCFSwithBackfillingScheduler()
 
     def get_title(self) -> str:
         return f"Base SITA $\\alpha={self.proc_of_small}$"

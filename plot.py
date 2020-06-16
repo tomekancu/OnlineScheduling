@@ -82,15 +82,16 @@ def print_metrics(xs_of_metrics: Dict[Any, Dict[str, Metrics]], main_name: str,
     xs = list(map(lambda x: x if isinstance(x, int) or isinstance(x, float) or isinstance(x, str) else str(x), xs))
 
     for i, (name, func) in enumerate(
-            {"max end": lambda x: x.max_end,
-             "mean response time": lambda x: x.mean_response_time,
+            {"mean response time": lambda x: x.mean_response_time,
              "mean processing time": lambda x: x.mean_processing_time,
+             "resource load": lambda x: x.resource_usage,
              "mean delay time": lambda x: x.mean_delay_time,
+             "mean delay processing time": lambda x: x.mean_delay_processing_time,
              "mean ideal delay time": lambda x: x.mean_ideal_delay_time,
-             "processing time to\n response time": lambda x: x.processing_time_to_response_time,
              "delay time to\n response time": lambda x: x.delay_time_to_response_time,
+             "delay processing time to\n response time": lambda x: x.delay_processing_time_to_response_time,
              "ideal delay time to\n response time": lambda x: x.ideal_delay_time_to_response_time,
-             "resource load": lambda x: x.resource_usage}.items()):
+             }.items()):
         plots = _to_plot(xs_of_metrics, func)
         title = plot_names_mapping.get(name, name)
         axs[i // 3, i % 3].set_title(title)

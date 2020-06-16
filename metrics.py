@@ -14,8 +14,9 @@ class MetricType(Enum):
     MEAN_DELAY_PROCESSING_TIME = "$\\bar{t_o'}$"
     MEAN_IDEAL_DELAY_TIME = "$\\bar{t_o} + \\bar{t_o'}$"
     PROCESSING_TIME_TO_RESPONSE_TIME = auto()
-    DELAY_TIME_TO_RESPONSE_TIME = auto()
-    IDEAL_DELAY_TIME_TO_RESPONSE_TIME = auto()
+    DELAY_TIME_TO_RESPONSE_TIME = "$\\varphi_o$"
+    DELAY_PROCESSING_TIME_TO_RESPONSE_TIME = "$\\varphi_o'$"
+    IDEAL_DELAY_TIME_TO_RESPONSE_TIME = "$\\varphi_o + \\varphi_o'$"
     RESOURCE_USAGE = "$\\varphi_r$"
     ACTUAL_RESOURCE_LOAD = "$\\rho$"
 
@@ -32,6 +33,7 @@ class Metrics:
         self.mean_delay_processing_time = self.mean_ideal_delay_time - self.mean_delay_time
         self.processing_time_to_response_time = self.mean_processing_time / self.mean_response_time
         self.delay_time_to_response_time = self.mean_delay_time / self.mean_response_time
+        self.delay_processing_time_to_response_time = self.mean_delay_processing_time / self.mean_response_time
         self.ideal_delay_time_to_response_time = self.mean_ideal_delay_time / self.mean_response_time
         self.resource_usage = resource_usage
         self.actual_resource_load = actual_resource_load
@@ -67,6 +69,8 @@ class Metrics:
             return self.processing_time_to_response_time
         elif typ == MetricType.DELAY_TIME_TO_RESPONSE_TIME:
             return self.delay_time_to_response_time
+        elif typ == MetricType.DELAY_PROCESSING_TIME_TO_RESPONSE_TIME:
+            return self.delay_processing_time_to_response_time
         elif typ == MetricType.IDEAL_DELAY_TIME_TO_RESPONSE_TIME:
             return self.ideal_delay_time_to_response_time
         elif typ == MetricType.RESOURCE_USAGE:
